@@ -1,0 +1,14 @@
+{
+  "plugins": {
+    "@release-it/bumper": {
+      "out": ["frontend/package.json", "backend/pyproject.toml"]
+    }
+  },
+  "npm": false,
+  "git": {
+    "commitMessage": "chore: release v${version}"
+  },
+  "github": {
+    "release": true
+  }
+}
