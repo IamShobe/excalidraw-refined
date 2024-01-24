@@ -15,6 +15,7 @@ RUN touch README.md
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
 FROM python:3.12-alpine as runtime
+LABEL org.opencontainers.image.source="https://github.com/iamshobe/excalidraw-refined_backend"
 
 WORKDIR /app
 ENV VIRTUAL_ENV=/app/.venv \
