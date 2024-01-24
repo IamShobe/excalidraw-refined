@@ -1,7 +1,13 @@
 {
   "plugins": {
     "@release-it/bumper": {
-      "out": ["frontend/package.json", "backend/pyproject.toml"]
+      "out": [
+        "frontend/package.json",
+        {
+          "file": "backend/pyproject.toml",
+          "path": "tool.poetry.version"
+        }
+      ]
     }
   },
   "npm": false,
