@@ -3,6 +3,7 @@ from typing import Generic, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
+from sqlalchemy.orm import defer
 
 from server.db.database import SessionLocal
 from server.db.models import File, Scene, SceneRevision
@@ -11,8 +12,8 @@ from server.db.models import File, Scene, SceneRevision
 class BaseSceneWithRevision(BaseModel):
     name: str
     description: str
-    picture: bytes
-    data: bytes
+    picture: str
+    data: str
 
 
 class EnrichedSceneWithRevision(BaseSceneWithRevision):
@@ -28,12 +29,12 @@ class SceneSummary(BaseModel):
     revision_id: str
     name: str
     description: str
-    picture: bytes
+    picture: str
 
 
 class SceneFile(BaseModel):
     name: str
-    data: bytes
+    data: str
 
 
 class SceneFileWithId(SceneFile):
@@ -59,36 +60,34 @@ class SceneController:
         self.db_session: SessionLocal = db_session
 
     def get_scene_with_latest_revision(self, scene_id: str) -> EnrichedSceneWithRevision:
-        latest_revision_subquery = self.db_session.query(SceneRevision, func.max(SceneRevision.created)).where(
-            SceneRevision.scene_id == scene_id
-        ).group_by(SceneRevision.scene_id).subquery()
-
         query = select(
-            Scene,
-            latest_revision_subquery.c.id.label("revision_id"),
-            latest_revision_subquery.c.data,
-            latest_revision_subquery.c.picture,
-        ).join(
-            latest_revision_subquery, Scene.id == latest_revision_subquery.c.scene_id
+            SceneRevision.id.label("revision_id"),
+            SceneRevision.created.label("latest_update"),
+            SceneRevision.picture,
+            SceneRevision.data,
+            Scene.id.label("scene_id"),
+            Scene.name,
+            Scene.description,
+            Scene.created,
+        ).join(Scene).distinct(Scene.id).order_by(
+            Scene.id, SceneRevision.created.desc(),
         ).where(Scene.id == scene_id)
 
         result = self.db_session.execute(query).first()
         if result is None:
             raise ValueError(f"Scene with id {scene_id} not found")
 
-        scene, revision_id, data, picture = result
-
         files_ids = self.db_session.query(File.id).where(
-            File.revision_id == revision_id,
+            File.revision_id == result.revision_id,
         ).all()
 
         return EnrichedSceneWithRevision(
-            id=scene.id,
-            revision_id=revision_id,
-            name=scene.name,
-            description=scene.description,
-            picture=picture,
-            data=data,
+            id=result.scene_id,
+            revision_id=result.revision_id,
+            name=result.name,
+            description=result.description,
+            picture=result.picture,
+            data=result.data,
             files_ids=[file_id for file_id, in files_ids],
         )
 
@@ -118,41 +117,49 @@ class SceneController:
             self, name_filter: str = None, from_timestamp: Optional[str] = None, limit=10,
     ) -> CursorPage[SceneSummary]:
         # select all scenes and also create a subquery to get the latest revision for each scene
-        latest_revision_subquery = self.db_session.query(SceneRevision, func.max(SceneRevision.created).label("last_updated")).group_by(
-            SceneRevision.scene_id).subquery()
-        query = select(
-            Scene,
-            latest_revision_subquery.c.id.label("revision_id"),
-            latest_revision_subquery.c.picture,
-            latest_revision_subquery.c.last_updated,
-        ).join(
-            latest_revision_subquery, Scene.id == latest_revision_subquery.c.scene_id,
-        ).order_by(Scene.created.desc())
+        latest_revision_by_scene_subquery = select(
+            SceneRevision.id.label("revision_id"),
+            SceneRevision.created.label("latest_update"),
+            SceneRevision.picture,
+            Scene.id.label("scene_id"),
+            Scene.name,
+            Scene.description,
+            Scene.created,
+        ).join(Scene).distinct(Scene.id).order_by(
+            Scene.id, SceneRevision.created.desc(),
+        )
 
         if name_filter is not None:
-            query = query.where(Scene.name.ilike(f"%{name_filter}%"))
+            latest_revision_by_scene_subquery = latest_revision_by_scene_subquery.where(Scene.name.ilike(f"%{name_filter}%"))
+
+        latest_revision_by_scene_subquery = latest_revision_by_scene_subquery.subquery()
+
+        query = select(
+            latest_revision_by_scene_subquery,
+        ).order_by(latest_revision_by_scene_subquery.c.created.desc())
 
         total = self.db_session.execute(select(func.count()).select_from(query.subquery())).scalar()
 
         query = query.limit(limit)
-        if from_timestamp is not None:
+        if from_timestamp is not None:  # this will basically the offset based on the timestamp (cursor pagination)
             datetime_from_timestamp = datetime.fromisoformat(from_timestamp)
             query = query.where(Scene.created < datetime_from_timestamp)
 
         results = self.db_session.execute(query).all()
 
-        items = [
-            SceneSummary(
-                id=scene.id,
-                created=scene.created,
-                last_updated=last_updated,
-                revision_id=revision_id,
-                name=scene.name,
-                description=scene.description,
-                picture=picture,
+        items = []
+        for row in results:
+            items.append(
+                SceneSummary(
+                    id=row.scene_id,
+                    created=row.created,
+                    last_updated=row.latest_update,
+                    revision_id=row.revision_id,
+                    name=row.name,
+                    description=row.description,
+                    picture=row.picture,
+                )
             )
-            for scene, revision_id, picture, last_updated in results
-        ]
 
         next_cursor: Optional[str] = None
         if len(items) > 0 and total > limit:

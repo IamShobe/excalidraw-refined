@@ -15,6 +15,7 @@ SQLAlchemy = "^2.0.25"
 alembic = "^1.13.1"
 pydantic = "^2.5.3"
 sqlalchemy-easy-softdelete = "^0.8.3"
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.dev-dependencies]
 ipdb = "^0.13.11"

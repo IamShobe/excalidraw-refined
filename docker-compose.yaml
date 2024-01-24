@@ -14,14 +14,10 @@ services:
       test: [ "CMD", "pg_isready", "-U", "excalidraw-refined" ]
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/iamshobe/excalidraw-refined_frontend:latest
 
   run-migrations:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/iamshobe/excalidraw-refined_backend:latest
     environment:
       - DB_URL=postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
     entrypoint: [ "alembic", "upgrade", "head" ]
@@ -30,9 +26,7 @@ services:
         condition: service_healthy
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/iamshobe/excalidraw-refined_backend:latest
     environment:
       - DB_URL=postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
     command:

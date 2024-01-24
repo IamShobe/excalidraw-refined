@@ -1,0 +1,73 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend
+  labels:
+    app.kubernetes.io/name: excalidraw-refined
+    app.kubernetes.io/component: backend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: excalidraw-refined
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: excalidraw-refined
+        app.kubernetes.io/component: backend
+    spec:
+      initContainers:
+        - name: run-migrations
+          image: ghcr.io/iamshobe/excalidraw-refined_backend:latest
+          imagePullPolicy: Always
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: excalidraw-refined-db
+                  key: DB_URL
+          command:
+            - alembic
+            - upgrade
+            - head
+      containers:
+        - name: backend
+          image: ghcr.io/iamshobe/excalidraw-refined_backend:latest
+          imagePullPolicy: Always
+          args:
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "8000"
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: excalidraw-refined-db
+                  key: DB_URL
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 512Mi
+            requests:
+              cpu: 1000m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3

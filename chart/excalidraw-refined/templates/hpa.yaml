@@ -1,28 +1,31 @@
-{{- if .Values.autoscaling.enabled }}
+{{- range $component, $componentValues := $.Values.deployments }}
+{{- if $componentValues.autoscaling.enabled }}
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "excalidraw-refined.fullname" . }}
+  name: {{ include "excalidraw-refined.fullname" $ }}-{{ $component }}
   labels:
-    {{- include "excalidraw-refined.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ $component}}
+    {{- include "excalidraw-refined.labels" $ | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "excalidraw-refined.fullname" . }}
-  minReplicas: {{ .Values.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+    name: {{ include "excalidraw-refined.fullname" . }}-{{ $component }}
+  minReplicas: {{ $componentValues.autoscaling.minReplicas }}
+  maxReplicas: {{ $componentValues.autoscaling.maxReplicas }}
   metrics:
-    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- if $componentValues.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
-        targetAverageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+        targetAverageUtilization: {{ $componentValues.autoscaling.targetCPUUtilizationPercentage }}
     {{- end }}
-    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if $componentValues.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
-        targetAverageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+        targetAverageUtilization: {{ $componentValues.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}
+{{- end}}

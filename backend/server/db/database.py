@@ -9,9 +9,7 @@ SQLALCHEMY_DATABASE_URL = os.environ.get("DB_URL")
 if SQLALCHEMY_DATABASE_URL is None:
     raise ValueError("DB_URL environment variable must be set")
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

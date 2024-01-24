@@ -293,6 +293,14 @@ python-versions = ">=3.7.0"
 wcwidth = "*"
 
 [[package]]
+name = "psycopg2-binary"
+version = "2.9.9"
+description = "psycopg2 - Python-PostgreSQL Database Adapter"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "ptyprocess"
 version = "0.7.0"
 description = "Run a subprocess in a pseudo terminal"
@@ -556,7 +564,7 @@ python-versions = ">=3.8"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "57f196107993b73ec0f8739892ac7ce21f1c37485744231fce79e834abc74d89"
+content-hash = "32ee31f603db33fd005cb0c8ee82cf69e17958598ac59bbb6a077badc6996bb7"
 
 [metadata.files]
 alembic = []
@@ -588,6 +596,7 @@ parso = [
 ]
 pexpect = []
 prompt-toolkit = []
+psycopg2-binary = []
 ptyprocess = [
     {file = "ptyprocess-0.7.0-py2.py3-none-any.whl", hash = "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35"},
     {file = "ptyprocess-0.7.0.tar.gz", hash = "sha256:5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220"},

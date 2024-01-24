@@ -1,0 +1,10 @@
+resources:
+  - frontend-deployment.yaml
+  - backend-deployment.yaml
+  - backend-service.yaml
+  - frontend-service.yaml
+  - ingress.yaml
+
+namePrefix: excalidraw-refined-
+commonLabels:
+  app.kubernetes.io/name: excalidraw-refined

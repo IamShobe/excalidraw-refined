@@ -54,9 +54,9 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "excalidraw-refined.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "excalidraw-refined.fullname" .) .Values.serviceAccount.name }}
+{{- if .serviceAccount.create }}
+{{- default (include "excalidraw-refined.fullname" .) .serviceAccount.name }}-{{ .component }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" .serviceAccount.name }}
 {{- end }}
 {{- end }}
