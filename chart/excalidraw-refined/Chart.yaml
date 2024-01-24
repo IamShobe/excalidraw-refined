@@ -2,5 +2,5 @@ apiVersion: v2
 name: excalidraw-refined
 description: A Helm chart for Kubernetes - Excalidraw Refined
 type: application
-version: 0.2.0
+version: 0.3.0
 appVersion: 0.1.2

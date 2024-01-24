@@ -33,17 +33,6 @@ spec:
       serviceAccountName: {{ include "excalidraw-refined.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.applications.backend.podSecurityContext | nindent 8 }}
-      initContainers:
-        - name: run-migrations
-          image: "{{ .Values.applications.backend.image.repository }}:{{ .Values.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.applications.backend.image.pullPolicy }}
-          env:
-            - name: DB_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "excalidraw-refined.dbSecretName" . }}
-                  key: {{ include "excalidraw-refined.dbSecretKey" . }}
-          command: {{ toJson .Values.applications.backend.migrations.command }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
