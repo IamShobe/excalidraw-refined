@@ -2,14 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Overrides the image tag whose default is the chart appVersion.
+tag: ""
+
 applications:
   backend:
     replicaCount: 1
     image:
       repository: ghcr.io/iamshobe/excalidraw-refined_backend
       pullPolicy: Always
-      # Overrides the image tag whose default is the chart appVersion.
-      tag: "latest"
 
     args:
       - --host
@@ -91,8 +92,6 @@ applications:
     image:
       repository: ghcr.io/iamshobe/excalidraw-refined_frontend
       pullPolicy: Always
-      # Overrides the image tag whose default is the chart appVersion.
-      tag: "latest"
 
     args: []
 

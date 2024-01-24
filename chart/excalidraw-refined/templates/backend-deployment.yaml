@@ -35,7 +35,7 @@ spec:
         {{- toYaml .Values.applications.backend.podSecurityContext | nindent 8 }}
       initContainers:
         - name: run-migrations
-          image: "{{ .Values.applications.backend.image.repository }}:{{ .Values.applications.backend.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.applications.backend.image.repository }}:{{ .Values.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.applications.backend.image.pullPolicy }}
           env:
             - name: DB_URL

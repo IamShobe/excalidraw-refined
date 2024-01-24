@@ -37,7 +37,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.applications.frontend.securityContext | nindent 12 }}
-          image: "{{ .Values.applications.frontend.image.repository }}:{{ .Values.applications.frontend.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.applications.frontend.image.repository }}:{{ .Values.tag | default .Chart.AppVersion }}"
           args: {{ toJson .Values.applications.frontend.args }}
           imagePullPolicy: {{ .Values.applications.frontend.image.pullPolicy }}
           ports:

@@ -37,7 +37,7 @@ Common labels
 helm.sh/chart: {{ include "excalidraw-refined.chart" . }}
 {{ include "excalidraw-refined.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/version: {{ .Values.tag | default .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
