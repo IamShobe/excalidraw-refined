@@ -1,11 +1,17 @@
 {
   "plugins": {
     "@release-it/bumper": {
+      "out": ["frontend/package.json"]
+    },
+    "@j-ulrich/release-it-regex-bumper": {
       "out": [
-        "frontend/package.json",
         {
-          "file": "backend/pyproject.toml",
-          "path": "tool.poetry.version"
+          "file":  "backend/pyproject.toml",
+          "search": {
+            "pattern": "(?<=^version = \").*(?=\")",
+            "flags": "mg"
+          },
+          "replace": "{{version}}"
         }
       ]
     }
