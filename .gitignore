@@ -1,3 +1,5 @@
 .vscode/
 .idea/
 data/
+
+node_modules/
