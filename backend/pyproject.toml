@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "excalidraw-server"
+version = "0.1.0"
+description = ""
+authors = ["Elran Shefer <elran777@gmail.com>"]
+packages = [
+    {include = "server", from = "."},
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.109.0"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
+SQLAlchemy = "^2.0.25"
+alembic = "^1.13.1"
+pydantic = "^2.5.3"
+sqlalchemy-easy-softdelete = "^0.8.3"
+
+[tool.poetry.dev-dependencies]
+ipdb = "^0.13.11"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,9 @@
+.vscode/
+.idea/
+
+# Python
+*.pyc
+__pycache__/
+
+sql_app.db
+
