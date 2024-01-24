@@ -1,9 +1,9 @@
 upstream backend_upstream {
-    server backend:8080;
+    server backend:${BACKEND_PORT};
 }
 
 upstream frontend_upstream {
-    server frontend:80;
+    server frontend:${FRONTEND_PORT};
 }
 
 

@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=excalidraw-refined
+      - POSTGRES_USER=excalidraw-refined
+      - POSTGRES_PASSWORD=excalidraw-refined
+
+  dev:
+    build:
+      context: .
+
+    environment:
+      DB_URL: postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined

@@ -1,5 +1,5 @@
 .vscode/
 .idea/
-data/
+/data/
 
 node_modules/

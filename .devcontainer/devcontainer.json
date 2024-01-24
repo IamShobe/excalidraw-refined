@@ -1,0 +1,17 @@
+{
+  "name": "general",
+  "dockerComposeFile": "docker-compose.yaml",
+  "service": "dev",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers-contrib/features/poetry:2": {},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers-contrib/features/tmux-apt-get:1": {}
+  },
+  "onCreateCommand": ["scripts/install-deps.sh"],
+}
