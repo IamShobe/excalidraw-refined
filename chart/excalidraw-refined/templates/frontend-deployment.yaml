@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "excalidraw-refined.fullname" . }}-frontend
+  labels:
+    app.kubernetes.io/component: frontend
+    {{- include "excalidraw-refined.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.applications.frontend.autoscaling.enabled }}
+  replicas: {{ .Values.applications.frontend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: frontend
+      {{- include "excalidraw-refined.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.applications.frontend.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/component: frontend
+        {{- include "excalidraw-refined.labels" . | nindent 8 }}
+        {{- with .Values.applications.frontend.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.applications.frontend.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "excalidraw-refined.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.applications.frontend.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.applications.frontend.securityContext | nindent 12 }}
+          image: "{{ .Values.applications.frontend.image.repository }}:{{ .Values.applications.frontend.image.tag | default .Chart.AppVersion }}"
+          args: {{ toJson .Values.applications.frontend.args }}
+          imagePullPolicy: {{ .Values.applications.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.applications.frontend.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.applications.frontend.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.applications.frontend.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.applications.frontend.resources | nindent 12 }}
+          {{- with .Values.applications.frontend.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.applications.frontend.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.applications.frontend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.applications.frontend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.applications.frontend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

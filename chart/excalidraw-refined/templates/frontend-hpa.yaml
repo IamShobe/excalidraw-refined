@@ -1,0 +1,33 @@
+{{- if .Values.applications.frontend.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "excalidraw-refined.fullname" . }}-frontend
+  labels:
+    app.kubernetes.io/component: frontend
+    {{- include "excalidraw-refined.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "excalidraw-refined.fullname" . }}-frontend
+  minReplicas: {{ .Values.applications.frontend.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.applications.frontend.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.applications.frontend.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.applications.frontend.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.applications.frontend.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.applications.frontend.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

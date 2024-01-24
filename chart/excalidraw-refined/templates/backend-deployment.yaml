@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "excalidraw-refined.fullname" . }}-backend
+  labels:
+    app.kubernetes.io/component: backend
+    {{- include "excalidraw-refined.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.applications.backend.autoscaling.enabled }}
+  replicas: {{ .Values.applications.backend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: backend
+      {{- include "excalidraw-refined.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.applications.backend.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/component: backend
+        {{- include "excalidraw-refined.labels" . | nindent 8 }}
+        {{- with .Values.applications.backend.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.applications.backend.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "excalidraw-refined.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.applications.backend.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: run-migrations
+          image: "{{ .Values.applications.backend.image.repository }}:{{ .Values.applications.backend.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.applications.backend.image.pullPolicy }}
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "excalidraw-refined.dbSecretName" . }}
+                  key: {{ include "excalidraw-refined.dbSecretKey" . }}
+          command: {{ toJson .Values.applications.backend.migrations.command }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.applications.backend.securityContext | nindent 12 }}
+          image: "{{ .Values.applications.backend.image.repository }}:{{ .Values.applications.backend.image.tag | default .Chart.AppVersion }}"
+          args: {{ toJson .Values.applications.backend.args }}
+          imagePullPolicy: {{ .Values.applications.backend.image.pullPolicy }}
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "excalidraw-refined.dbSecretName" . }}
+                  key: {{ include "excalidraw-refined.dbSecretKey" . }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.applications.backend.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.applications.backend.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.applications.backend.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.applications.backend.resources | nindent 12 }}
+          {{- with .Values.applications.backend.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.applications.backend.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.applications.backend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.applications.backend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.applications.backend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
