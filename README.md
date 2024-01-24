@@ -43,5 +43,10 @@ kubectl create secret generic -n $NAMESPACE excalidraw-refined-db "--from-litera
 
 Applying application:
 ```bash
-kubectl apply -k deployment/base -n $NAMESPACE
+helm install excalidraw-refined ./chart/excalidraw-refined/ -f chart/local-values.yaml -n $NAMESPACE
+```
+
+Upgrading:
+```bash
+helm upgrade excalidraw-refined ./chart/excalidraw-refined/ -f chart/local-values.yaml -n $NAMESPACE
 ```

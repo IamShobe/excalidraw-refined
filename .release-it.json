@@ -1,12 +1,18 @@
 {
   "plugins": {
     "@release-it/bumper": {
-      "out": ["frontend/package.json"]
+      "out": [
+        "frontend/package.json",
+        {
+          "file": "chart/excalidraw-refined/Chart.yaml",
+          "path": "appVersion"
+        }
+      ]
     },
     "@j-ulrich/release-it-regex-bumper": {
       "out": [
         {
-          "file":  "backend/pyproject.toml",
+          "file": "backend/pyproject.toml",
           "search": {
             "pattern": "(?<=^version = \").*(?=\")",
             "flags": "mg"
