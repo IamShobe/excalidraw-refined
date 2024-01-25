@@ -8,9 +8,7 @@ services:
       - POSTGRES_PASSWORD=excalidraw-refined
 
   dev:
-    image: "mcr.microsoft.com/devcontainers/base:bullseye"
-    # volumes:
-    #   - ../..:/workspaces:cached
+    image: "ghcr.io/iamshobe/excalidraw-refined_dev:latest"
     environment:
       DB_URL: postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
     

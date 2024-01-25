@@ -5,20 +5,8 @@
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "dockerComposeFile": "docker-compose.yaml",
   "service": "dev",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "overrideCommand": true,
-  "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.12"
-    },
-    "ghcr.io/devcontainers-contrib/features/node-asdf:0": {},
-    "ghcr.io/devcontainers-contrib/features/poetry:2": {},
-    "ghcr.io/devcontainers-contrib/features/tmux-apt-get:1": {},
-    "ghcr.io/devcontainers/features/git:1": {}
-  }
+  "workspaceFolder": "/workspaces/",
+  "overrideCommand": true
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},

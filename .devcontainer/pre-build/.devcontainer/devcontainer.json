@@ -3,9 +3,8 @@
 {
   "name": "dev",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "dockerComposeFile": "docker-compose.yaml",
-  "service": "dev",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "dockerFile": "Dockerfile",
+  "workspaceFolder": "/workspaces/",
   "overrideCommand": true,
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {},
@@ -17,8 +16,11 @@
     "ghcr.io/devcontainers-contrib/features/node-asdf:0": {},
     "ghcr.io/devcontainers-contrib/features/poetry:2": {},
     "ghcr.io/devcontainers-contrib/features/tmux-apt-get:1": {},
-    "ghcr.io/devcontainers/features/git:1": {}
-  }
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {
+      "version": "latest",
+      "moby": true
+    } }
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
