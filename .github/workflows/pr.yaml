@@ -1,0 +1,25 @@
+name: PR
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Run image
+        uses: abatilo/actions-poetry@v2
+      - name: Install dependencies
+        run: |-
+            cd backend/
+            poetry install
+      - name: Lint
+        run: |-
+            cd backend/
+            poetry run ruff check

@@ -3,9 +3,8 @@ from typing import Generic, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
-from sqlalchemy.orm import defer
+from sqlalchemy.orm import Session, aliased, defer
 
-from server.db.database import SessionLocal
 from server.db.models import File, Scene, SceneRevision
 
 
@@ -56,39 +55,48 @@ class CursorPage(Page[T], Generic[T]):
 
 
 class SceneController:
-    def __init__(self, db_session: SessionLocal):
-        self.db_session: SessionLocal = db_session
+    def __init__(self, db_session: Session):
+        self.db_session = db_session
 
-    def get_scene_with_latest_revision(self, scene_id: str) -> EnrichedSceneWithRevision:
-        query = select(
-            SceneRevision.id.label("revision_id"),
-            SceneRevision.created.label("latest_update"),
-            SceneRevision.picture,
-            SceneRevision.data,
-            Scene.id.label("scene_id"),
-            Scene.name,
-            Scene.description,
-            Scene.created,
-        ).join(Scene).distinct(Scene.id).order_by(
-            Scene.id, SceneRevision.created.desc(),
-        ).where(Scene.id == scene_id)
+    def get_scene_with_latest_revision(
+        self, scene_id: str
+    ) -> EnrichedSceneWithRevision:
+        query = (
+            select(
+                SceneRevision,
+                Scene,
+            )
+            .join(Scene)
+            .distinct(Scene.id)
+            .order_by(
+                Scene.id,
+                SceneRevision.created.desc(),
+            )
+            .where(Scene.id == scene_id)
+        )
 
         result = self.db_session.execute(query).first()
         if result is None:
             raise ValueError(f"Scene with id {scene_id} not found")
 
-        files_ids = self.db_session.query(File.id).where(
-            File.revision_id == result.revision_id,
-        ).all()
+        revision, scene = result.tuple()
+
+        files_ids = (
+            self.db_session.query(File.id)
+            .where(
+                File.revision_id == revision.id,
+            )
+            .all()
+        )
 
         return EnrichedSceneWithRevision(
-            id=result.scene_id,
-            revision_id=result.revision_id,
-            name=result.name,
-            description=result.description,
-            picture=result.picture,
-            data=result.data,
-            files_ids=[file_id for file_id, in files_ids],
+            id=scene.id,
+            revision_id=revision.id,
+            name=scene.name,
+            description=scene.description,
+            picture=revision.picture,
+            data=revision.data,
+            files_ids=[file_id for (file_id,) in files_ids],
         )
 
     def get_scene_file(self, file_id: str) -> SceneFileWithId:
@@ -114,50 +122,64 @@ class SceneController:
         )
 
     def get_scenes(
-            self, name_filter: str = None, from_timestamp: Optional[str] = None, limit=10,
+        self,
+        name_filter: str = None,
+        from_timestamp: Optional[str] = None,
+        limit=10,
     ) -> CursorPage[SceneSummary]:
         # select all scenes and also create a subquery to get the latest revision for each scene
-        latest_revision_by_scene_subquery = select(
-            SceneRevision.id.label("revision_id"),
-            SceneRevision.created.label("latest_update"),
-            SceneRevision.picture,
-            Scene.id.label("scene_id"),
-            Scene.name,
-            Scene.description,
-            Scene.created,
-        ).join(Scene).distinct(Scene.id).order_by(
-            Scene.id, SceneRevision.created.desc(),
+        latest_revision_by_scene_subquery = (
+            select(
+                SceneRevision,
+                Scene,
+            )
+            .options(defer(SceneRevision.data))
+            .join(Scene)
+            .distinct(Scene.id)
+            .order_by(
+                Scene.id,
+                SceneRevision.created.desc(),
+            )
         )
 
         if name_filter is not None:
-            latest_revision_by_scene_subquery = latest_revision_by_scene_subquery.where(Scene.name.ilike(f"%{name_filter}%"))
+            latest_revision_by_scene_subquery = latest_revision_by_scene_subquery.where(
+                Scene.name.ilike(f"%{name_filter}%")
+            )
 
         latest_revision_by_scene_subquery = latest_revision_by_scene_subquery.subquery()
 
-        query = select(
-            latest_revision_by_scene_subquery,
-        ).order_by(latest_revision_by_scene_subquery.c.created.desc())
+        scene_alias = aliased(Scene, latest_revision_by_scene_subquery, name="scene")
+        revision_alias = aliased(
+            SceneRevision, latest_revision_by_scene_subquery, name="revision"
+        )
 
-        total = self.db_session.execute(select(func.count()).select_from(query.subquery())).scalar()
+        query = select(scene_alias, revision_alias).order_by(scene_alias.created.desc())
+
+        total = self.db_session.execute(
+            select(func.count()).select_from(query.subquery())
+        ).scalar()
 
         query = query.limit(limit)
-        if from_timestamp is not None:  # this will basically the offset based on the timestamp (cursor pagination)
+        if from_timestamp is not None:
+            # this will basically the offset based on the timestamp (cursor pagination)
             datetime_from_timestamp = datetime.fromisoformat(from_timestamp)
             query = query.where(Scene.created < datetime_from_timestamp)
 
         results = self.db_session.execute(query).all()
 
-        items = []
+        items: list[SceneSummary] = []
         for row in results:
+            scene, revision = row.tuple()
             items.append(
                 SceneSummary(
-                    id=row.scene_id,
-                    created=row.created,
-                    last_updated=row.latest_update,
-                    revision_id=row.revision_id,
-                    name=row.name,
-                    description=row.description,
-                    picture=row.picture,
+                    id=scene.id,
+                    created=scene.created,
+                    last_updated=revision.created,
+                    revision_id=revision.id,
+                    name=scene.name,
+                    description=scene.description,
+                    picture=revision.picture,
                 )
             )
 
@@ -173,9 +195,18 @@ class SceneController:
             next_cursor=next_cursor,
         )
 
-    def create_scene_with_revision(self, wanted_scene: BaseSceneWithRevision) -> EnrichedSceneWithRevision:
-        scene = Scene(name=wanted_scene.name, description=wanted_scene.description, owner_id=0)
-        revision = SceneRevision(scene=scene, data=wanted_scene.data, picture=wanted_scene.picture, commiter_id=0)
+    def create_scene_with_revision(
+        self, wanted_scene: BaseSceneWithRevision
+    ) -> EnrichedSceneWithRevision:
+        scene = Scene(
+            name=wanted_scene.name, description=wanted_scene.description, owner_id=0
+        )
+        revision = SceneRevision(
+            scene=scene,
+            data=wanted_scene.data,
+            picture=wanted_scene.picture,
+            commiter_id=0,
+        )
         self.db_session.add(scene, revision)
         self.db_session.commit()
         self.db_session.refresh(scene)
@@ -189,12 +220,19 @@ class SceneController:
             data=revision.data,
         )
 
-    def update_scene(self, scene_id: str, wanted_scene: BaseSceneWithRevision) -> EnrichedSceneWithRevision:
+    def update_scene(
+        self, scene_id: str, wanted_scene: BaseSceneWithRevision
+    ) -> EnrichedSceneWithRevision:
         scene = self.db_session.query(Scene).where(Scene.id == scene_id).first()
         if scene is None:
             raise ValueError(f"Scene with id {scene_id} not found")
 
-        revision = SceneRevision(scene=scene, data=wanted_scene.data, picture=wanted_scene.picture, commiter_id=0)
+        revision = SceneRevision(
+            scene=scene,
+            data=wanted_scene.data,
+            picture=wanted_scene.picture,
+            commiter_id=0,
+        )
         scene.name = wanted_scene.name
         scene.description = wanted_scene.description
         self.db_session.add(revision)

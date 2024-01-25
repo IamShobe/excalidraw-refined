@@ -2,6 +2,7 @@ import dataclasses
 from typing import Annotated
 
 from fastapi import Depends, Query
+from sqlalchemy.orm import Session
 
 from server.controllers.scenes import SceneController
 from server.db.database import SessionLocal
@@ -15,7 +16,7 @@ def get_db():
         db.close()
 
 
-db_dependency = Annotated[SessionLocal, Depends(get_db)]
+db_dependency = Annotated[Session, Depends(get_db)]
 
 
 def get_scene_controller(db: db_dependency):
@@ -32,8 +33,8 @@ class PageParams:
 
 
 def get_pagination_params(
-        cursor: Annotated[str, Query()] = None,
-        limit: Annotated[int, Query()] = 10,
+    cursor: Annotated[str, Query()] = None,
+    limit: Annotated[int, Query()] = 10,
 ):
     return PageParams(cursor=cursor, limit=limit)
 
