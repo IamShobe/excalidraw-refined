@@ -9,6 +9,8 @@ services:
 
   dev:
     image: "mcr.microsoft.com/devcontainers/base:bullseye"
+    # volumes:
+    #   - ../..:/workspaces:cached
     environment:
       DB_URL: postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
     
