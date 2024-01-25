@@ -50,3 +50,9 @@ Upgrading:
 ```bash
 helm upgrade excalidraw-refined ./chart/excalidraw-refined/ -f chart/local-values.yaml -n $NAMESPACE
 ```
+
+## Releasing versions
+Use:
+```bash
+GITHUB_TOKEN=$(gh auth token) npx release-it
+```
