@@ -10,6 +10,7 @@ services:
   dev:
     build:
       context: .
-
+    ports:
+      - "15173:5173"
     environment:
       DB_URL: postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined

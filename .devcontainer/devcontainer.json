@@ -12,6 +12,5 @@
     "ghcr.io/devcontainers-contrib/features/poetry:2": {},
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/devcontainers-contrib/features/tmux-apt-get:1": {}
-  },
-  "onCreateCommand": ["scripts/install-deps.sh"],
+  }
 }
