@@ -6,7 +6,16 @@
   "dockerComposeFile": "docker-compose.yaml",
   "service": "dev",
   "workspaceFolder": "/workspaces/",
-  "overrideCommand": true
+  "overrideCommand": true,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "ms-python.python",
+        "charliermarsh.ruff"
+      ]
+    }
+  }
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},

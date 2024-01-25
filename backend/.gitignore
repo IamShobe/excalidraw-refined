@@ -4,6 +4,6 @@
 # Python
 *.pyc
 __pycache__/
+.venv/
 
 sql_app.db
-
