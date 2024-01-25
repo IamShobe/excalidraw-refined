@@ -8,9 +8,7 @@ services:
       - POSTGRES_PASSWORD=excalidraw-refined
 
   dev:
-    build:
-      context: .
-    ports:
-      - "15173:5173"
+    image: "mcr.microsoft.com/devcontainers/base:bullseye"
     environment:
       DB_URL: postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
+    
