@@ -33,8 +33,8 @@ class PageParams:
 
 
 def get_pagination_params(
-        cursor: Annotated[str, Query()] = None,
-        limit: Annotated[int, Query()] = 10,
+    cursor: Annotated[str, Query()] = None,
+    limit: Annotated[int, Query()] = 10,
 ):
     return PageParams(cursor=cursor, limit=limit)
 
