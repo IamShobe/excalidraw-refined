@@ -2,8 +2,8 @@ module.exports = {
   backend: {
     output: {
       mode: 'tags-split',
-      target: 'src/lib/api/backend.ts',
-      schemas: 'src/model',
+      target: 'src/gen/api/backend.ts',
+      schemas: 'src/gen/model',
       client: 'react-query',
       mock: true,
       override: {
@@ -18,6 +18,10 @@ module.exports = {
               },
             },
           },
+        },
+        mutator: {
+          path: './src/api/axios.ts',
+          name: 'customInstance',
         },
       },
     },

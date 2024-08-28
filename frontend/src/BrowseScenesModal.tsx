@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo} from "react";
+import { SearchIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -23,25 +23,14 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import { AxiosResponse } from "axios";
-import {SearchIcon} from "@chakra-ui/icons";
-import {IoMdRefresh} from "react-icons/io";
+import { useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useMemo } from "react";
+import { IoMdRefresh } from "react-icons/io";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {useDebounce} from "react-use";
-import {useQueryClient} from "@tanstack/react-query";
+import { useDebounce } from "react-use";
 import SceneCard from "./SceneCard.tsx";
-import {
-  getScenesApiV1ScenesGet,
-  useGetScenesApiV1ScenesGetInfinite, 
-} from "./lib/api/default/default.ts";
 
-import {
-  CursorPageSceneSummary
-} from "./model/cursorPageSceneSummary";
-
-import type {
-  InfiniteData,
-} from '@tanstack/react-query';
+import { useScenes } from "./api-hooks.ts";
 
 
 const BrowseScenesModal: React.FC<{
@@ -71,14 +60,10 @@ const BrowseScenesModal: React.FC<{
   const client = useQueryClient();
 
 
-  const {isLoading, error, data, fetchNextPage, hasNextPage} = useGetScenesApiV1ScenesGetInfinite<InfiniteData<AxiosResponse<CursorPageSceneSummary>>>({
-    name_filter: debouncedSearch,
-  }, {
-    query: {
-      enabled: isOpen,
-    }
+  const {isLoading, error, data, fetchNextPage, hasNextPage} = useScenes({
+    enabled: isOpen,
+    search: debouncedSearch,
   });
-
 
   const currentCount = useMemo(() => {
     if (!data) {
@@ -113,7 +98,7 @@ const BrowseScenesModal: React.FC<{
                 </InputRightElement>
               </InputGroup>
               {
-                error && <Text color="red">{error?.message}</Text>
+                error && <Text color="red">{error?.toString()}</Text>
               }
               {
                 isLoading ? <Center>
@@ -141,7 +126,7 @@ const BrowseScenesModal: React.FC<{
                     >
                       <Grid templateColumns="repeat(auto-fill, minmax(20em, 1fr))" gap={6} padding={2}>
                         {
-                          data?.pages.map((page: AxiosResponse<CursorPageSceneSummary>) => {
+                          data?.pages.map((page) => {
                             return page.items.map((scene) =>
                               <GridItem key={scene.id}>
                                 <SceneCard scene={scene}

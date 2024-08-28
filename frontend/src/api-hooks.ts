@@ -1,196 +1,91 @@
-import {queryOptions, useInfiniteQuery, useMutation, useQueries, useQuery, useQueryClient} from "@tanstack/react-query";
-import {BinaryFileData} from "@excalidraw/excalidraw/types/types";
-import createClient from "openapi-fetch";
-import {components, paths} from "./lib/api/v1";
-import type {DefaultError, InfiniteData, QueryKey} from "@tanstack/query-core";
-
-
-const client = createClient<paths>();
-
-
-export type SceneSummary = components["schemas"]["SceneSummary"];
-export type CursorPageSceneSummary = components["schemas"]["CursorPage_SceneSummary_"];
-export const useScenes = ({enabled, search}: { enabled: boolean, search: string }) => {
-  return useInfiniteQuery<CursorPageSceneSummary, DefaultError, InfiniteData<CursorPageSceneSummary>, QueryKey, string | undefined>({
-    queryKey: ["scenes", search],
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
-    queryFn: async ({signal, pageParam}) => {
-      const scenes = await client.GET("/api/v1/scenes/", {
-        params: {
-          query: {
-            cursor: pageParam,
-            name_filter: search,
-          },
-        },
-        signal,
-      });
-
-      if (scenes.error) {
-        console.error(scenes.error);
-        throw scenes.error;
-      }
-
-      return scenes.data;
-    },
-    enabled,
-  });
-};
+import { BinaryFileData } from "@excalidraw/excalidraw/types/types";
+import { queryOptions, useQueries, useQueryClient } from "@tanstack/react-query";
+import { getGetSceneFileApiV1SceneFilesFileIdGetQueryOptions, getGetScenesApiV1ScenesGetQueryKey, useAddSceneFileApiV1SceneFilesPost, useCreateSceneApiV1ScenesPost, useDeleteSceneApiV1ScenesSceneIdDelete, useGetSceneApiV1ScenesSceneIdGet, useGetScenesApiV1ScenesGetInfinite, useUpdateSceneApiV1ScenesSceneIdPut } from "./gen/api/default/default";
 
 export const useSaveSceneToServerMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (params: {
-      name: string,
-      description: string,
-      data: string,
-      picture: string,
-    }) => {
-      return await client.POST("/api/v1/scenes/", {
-        body: {
-          ...params,
-        },
-      });
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({queryKey: ["scenes"]});
-    },
+  return useCreateSceneApiV1ScenesPost({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetScenesApiV1ScenesGetQueryKey() });
+      },
+    }
   });
-};
+}
 
+export const useScenes = ({enabled, search}: { enabled: boolean, search: string }) => {
+  return useGetScenesApiV1ScenesGetInfinite({
+    name_filter: search,
+  }, {
+    query: {
+      enabled,
+      getNextPageParam: (lastPage) => {
+        return lastPage.next_cursor;
+      }
+    }
+  });
+}
 
 export const useSaveSceneFileToServerMutation = () => {
-  return useMutation({
-    mutationFn: async ({revisionId, params}: {
-      revisionId: string, params: {
-        name: string,
-        data: string,
-      }
-    }) => {
-      return await client.POST("/api/v1/scene-files/", {
-        params: {
-          query: {
-            revision_id: revisionId,
-          },
-        },
-        body: {
-          ...params,
-        },
-      });
-    },
-  });
-};
+  return useAddSceneFileApiV1SceneFilesPost()
+}
 
+export const sceneQueryKeyPrefix = "scene" as const;
+
+export const getSceneQueryKey = (sceneId: string) => {
+  return [sceneQueryKeyPrefix, sceneId] as const;
+}
 
 export const useDeleteSceneMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (sceneId: string) => {
-      return await client.DELETE("/api/v1/scenes/{scene_id}", {
-        params: {
-          path: {
-            scene_id: sceneId,
-          },
-        },
-      });
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({queryKey: ["scenes"]});
-      await queryClient.invalidateQueries({queryKey: ["scene"]});
-    },
+  return useDeleteSceneApiV1ScenesSceneIdDelete({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetScenesApiV1ScenesGetQueryKey() });
+        await queryClient.invalidateQueries({ queryKey: [sceneQueryKeyPrefix] });
+      },
+    }
   });
-};
-
+}
 
 export const useUpdateSceneMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (params: {
-      sceneId: string,
-      name: string,
-      description: string,
-      data: string,
-      picture: string,
-    }) => {
-      return await client.PUT("/api/v1/scenes/{scene_id}", {
-        params: {
-          path: {
-            scene_id: params.sceneId,
-          },
-        },
-        body: {
-          ...params,
-        },
-      });
-    },
-    onSuccess: async (response) => {
-      await queryClient.resetQueries({queryKey: ["scenes"]});
-      await queryClient.invalidateQueries({queryKey: ["scene", response.data?.id], exact: true});
-    },
+  return useUpdateSceneApiV1ScenesSceneIdPut({
+    mutation: {
+      onSuccess: async (response) => {
+        await queryClient.invalidateQueries({ queryKey: getGetScenesApiV1ScenesGetQueryKey() });
+        await queryClient.invalidateQueries({ queryKey: [sceneQueryKeyPrefix, response.id], exact: true});
+      },
+    }
   });
 }
 
 export const useScene = (sceneId?: string) => {
-  return useQuery({
-    queryKey: ["scene", sceneId],
-    queryFn: async ({signal}) => {
-      if (!sceneId) {
-        throw new Error("sceneId is required");
-      }
-
-      const sceneData = await client.GET("/api/v1/scenes/{scene_id}", {
-        params: {
-          path: {
-            scene_id: sceneId,
-          },
-        },
-        signal,
-      });
-
-      if (sceneData.error) {
-        console.error(sceneData.error);
-        throw sceneData.error;
-      }
-
-      return sceneData.data;
-    },
-    enabled: Boolean(sceneId),
+  return useGetSceneApiV1ScenesSceneIdGet(sceneId!, {
+    query: {
+      queryKey: getSceneQueryKey(sceneId!),
+      enabled: Boolean(sceneId),
+    }
   });
-};
-
+}
 
 export const useSceneFiles = (fileIds: string[]) => {
   return useQueries({
-    queries: fileIds.map(fileId => queryOptions({
-      queryKey: ["scene-file", fileId],
-      queryFn: async ({signal}) => {
-        const file = await client.GET("/api/v1/scene-files/{file_id}", {
-          params: {
-            path: {
-              file_id: fileId,
-            },
-          },
-          signal,
-        });
-        if (file.error) {
-          console.error(file.error);
-          throw file.error;
-        }
-
-        return {
-          name: file.data.name,
-          data: JSON.parse(file.data.data) as BinaryFileData,
-        };
-      },
-    })),
+    queries: fileIds.map(fileId => {
+      const options = getGetSceneFileApiV1SceneFilesFileIdGetQueryOptions(fileId);
+      return queryOptions({
+        queryKey: options.queryKey,
+        queryFn: options.queryFn,
+      })
+    }),
     combine: (results) => {
       return {
         data: results
-          .map(result => result.data?.data)
-          .filter((file): file is BinaryFileData => file !== undefined),
+          .map(result => result.data?.data && JSON.parse(result.data.data) as BinaryFileData)
+          .filter((sceneFile): sceneFile is BinaryFileData => sceneFile !== undefined),
         pending: results.some(result => result.isLoading),
       };
     },

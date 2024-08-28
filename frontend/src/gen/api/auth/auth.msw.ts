@@ -16,7 +16,7 @@ import type {
   BearerResponse,
   OAuth2AuthorizeResponse,
   UserRead
-} from '../../../model'
+} from '../../model'
 
 export const getAuthJwtLoginAuthJwtLoginPostResponseMock = (overrideResponse: Partial< BearerResponse > = {}): BearerResponse => ({access_token: faker.word.sample(), token_type: faker.word.sample(), ...overrideResponse})
 

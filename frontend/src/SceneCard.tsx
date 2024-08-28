@@ -1,5 +1,3 @@
-import React from "react";
-import {SceneSummary} from "./api-hooks.ts";
 import {
   Badge,
   Box,
@@ -19,8 +17,10 @@ import {
   Tooltip,
   useToast,
 } from "@chakra-ui/react";
+import React from "react";
+import { MdDelete, MdOpenInBrowser } from "react-icons/md";
 import scenePlaceholder from "./assets/scene_placeholder.png";
-import {MdDelete, MdOpenInBrowser} from "react-icons/md";
+import { SceneSummary } from "./gen/model";
 
 
 const SceneCard: React.FC<{

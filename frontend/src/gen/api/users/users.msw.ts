@@ -14,7 +14,7 @@ import {
 } from 'msw'
 import type {
   UserRead
-} from '../../../model'
+} from '../../model'
 
 export const getUsersCurrentUserUsersMeGetResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
 

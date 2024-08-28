@@ -16,7 +16,7 @@ import type {
   CursorPageSceneSummary,
   EnrichedSceneWithRevision,
   SceneFileWithId
-} from '../../../model'
+} from '../../model'
 
 export const getGetScenesApiV1ScenesGetResponseMock = (overrideResponse: Partial< CursorPageSceneSummary > = {}): CursorPageSceneSummary => ({count: faker.number.int({min: undefined, max: undefined}), items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({created: `${faker.date.past().toISOString().split('.')[0]}Z`, description: faker.word.sample(), id: faker.word.sample(), last_updated: `${faker.date.past().toISOString().split('.')[0]}Z`, name: faker.word.sample(), picture: faker.word.sample(), revision_id: faker.word.sample()})), limit: faker.number.int({min: undefined, max: undefined}), next_cursor: faker.helpers.arrayElement([faker.word.sample(),null]), total: faker.number.int({min: undefined, max: undefined}), ...overrideResponse})
 

@@ -1,32 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
 import { ChakraProvider, Flex, Text, useToast } from "@chakra-ui/react";
 import { Excalidraw, exportToBlob, MainMenu, WelcomeScreen } from "@excalidraw/excalidraw";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 
-import type { AppState, BinaryFiles, CollaboratorPointer, ExcalidrawImperativeAPI, UserIdleState } from "@excalidraw/excalidraw/types/types";
+import type { AppState, BinaryFiles, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 
-import "./App.css";
 import { useDisclosure } from "@chakra-ui/hooks";
-import BrowseScenesModal from "./BrowseScenesModal.tsx";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
-import { toBase64 } from "./utils/strings.ts";
-import {
-  useSceneFiles,
-} from "./api-hooks.ts";
-import { BrowserRouter, createSearchParams, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
-import SaveAsSceneModal from "./SaveAsSceneModal.tsx";
-import { MdOutlineSave, MdOutlineSaveAs } from "react-icons/md";
-import { CgBrowse } from "react-icons/cg";
 import { BiReset } from "react-icons/bi";
+import { CgBrowse } from "react-icons/cg";
+import { MdOutlineSave, MdOutlineSaveAs } from "react-icons/md";
+import { BrowserRouter, createSearchParams, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useHash } from "react-use";
-import {
-  useGetSceneApiV1ScenesSceneIdGet,
-  useCreateSceneApiV1ScenesPost,
-  useUpdateSceneApiV1ScenesSceneIdPut,
-  useAddSceneFileApiV1SceneFilesPost,
-  useDeleteSceneApiV1ScenesSceneIdDelete,
-  useGetSceneFileApiV1SceneFilesFileIdGet,
-} from "./lib/api/default/default.ts";
+import { useDeleteSceneMutation, useSaveSceneFileToServerMutation, useSaveSceneToServerMutation, useScene, useSceneFiles, useUpdateSceneMutation } from "./api-hooks.ts";
+import "./App.css";
+import BrowseScenesModal from "./BrowseScenesModal.tsx";
+import SaveAsSceneModal from "./SaveAsSceneModal.tsx";
+import { toBase64 } from "./utils/strings.ts";
 
 
 const queryClient = new QueryClient();
@@ -38,22 +28,17 @@ function App() {
   const browseScenesDisclosure = useDisclosure();
   const saveSceneDisclosure = useDisclosure();
 
-  // const saveSceneToServerMutation = useSaveSceneToServerMutation();
-  const saveSceneToServerMutation = useCreateSceneApiV1ScenesPost();
-  const saveSceneFileToServerMutation = useAddSceneFileApiV1SceneFilesPost();
-  const updateSceneMutation = useUpdateSceneApiV1ScenesSceneIdPut();
-  const deleteSceneMutation = useDeleteSceneApiV1ScenesSceneIdDelete();
+  const saveSceneToServerMutation = useSaveSceneToServerMutation();
+  const saveSceneFileToServerMutation = useSaveSceneFileToServerMutation();
+  const updateSceneMutation = useUpdateSceneMutation();
+  const deleteSceneMutation = useDeleteSceneMutation();
 
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const [hash, setHash] = useHash();
 
-  const sceneQuery = useGetSceneApiV1ScenesSceneIdGet(id!, {
-    query: {
-      enabled: id !== undefined,
-    }
-  });
+  const sceneQuery = useScene(id!);
   const fileIds = useMemo(() => sceneQuery.data?.files_ids ?? [], [sceneQuery.data]);
   const sceneFilesQueries = useSceneFiles(fileIds);
 
@@ -196,7 +181,6 @@ function App() {
     const files = excalidrawAPI.getFiles();
     const appState = excalidrawAPI.getAppState();
 
-
     const updatedScene = await updateSceneMutation.mutateAsync({
       sceneId: id,
       data: {
@@ -204,19 +188,14 @@ function App() {
         description: sceneQuery.data?.description ?? "",
         picture: await exportToImageBase64({ elements, appState, files }),
         data: JSON.stringify({ elements, collaborators: [] }),
-      }
+      },
     });
-
-    if (updatedScene.error) {
-      console.error(updatedScene.error);
-      return;
-    }
 
     // if this part fails - we lose the files
     const promises = Object.entries(files).map(([key, value]) => {
       return saveSceneFileToServerMutation.mutateAsync({
         params: {
-          revision_id: updatedScene.data.revision_id,
+          revision_id: updatedScene.revision_id,
         },
         data: {
           name: key,
@@ -309,16 +288,11 @@ function App() {
       }
     });
 
-    if (savedScene.error) {
-      console.error(savedScene.error);
-      return;
-    }
-
     // if this part fails - we lose the files
     const promises = Object.entries(files).map(([key, value]) => {
       return saveSceneFileToServerMutation.mutateAsync({
         params: {
-          revision_id: savedScene.data.revision_id,
+          revision_id: savedScene.revision_id,
         },
         data: {
           name: key,
@@ -329,7 +303,7 @@ function App() {
 
     await Promise.all(promises);
 
-    loadFromServer(savedScene.data.id);
+    loadFromServer(savedScene.id);
   };
 
   const loadFromServer = (sceneId: string) => {
