@@ -2,6 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
 
+from server.api.dependencies import (
+    pagination_params_dependency,
+    scene_controller_dependency,
+)
 from server.controllers.scenes import (
     BaseSceneWithRevision,
     CursorPage,
@@ -10,7 +14,6 @@ from server.controllers.scenes import (
     SceneFileWithId,
     SceneSummary,
 )
-from server.api.dependencies import pagination_params_dependency, scene_controller_dependency
 
 router = APIRouter()
 

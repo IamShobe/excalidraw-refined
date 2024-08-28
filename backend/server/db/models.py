@@ -1,13 +1,13 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Index, String, Text, CHAR
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy_easy_softdelete.mixin import generate_soft_delete_mixin_class
 from fastapi_users.db import (
     SQLAlchemyBaseOAuthAccountTableUUID,
     SQLAlchemyBaseUserTableUUID,
 )
+from sqlalchemy import CHAR, ForeignKey, Index, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy_easy_softdelete.mixin import generate_soft_delete_mixin_class
 
 from .database import Base
 

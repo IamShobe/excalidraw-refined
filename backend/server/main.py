@@ -1,8 +1,8 @@
 import fastapi
 from starlette.middleware.sessions import SessionMiddleware
 
+from server.api.v1.auth import SECRET, auth_backend, fastapi_users, google_oauth_client
 from server.api.v1.router import v1_app
-from server.api.v1.auth import auth_backend, google_oauth_client, SECRET, fastapi_users
 from server.api.v1.users import UserRead, UserUpdate
 
 app = fastapi.FastAPI()

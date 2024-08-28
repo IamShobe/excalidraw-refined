@@ -1,9 +1,7 @@
 import uuid
-import json
-from typing import Annotated, Optional
-from fastapi.responses import RedirectResponse
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.security import HTTPBearer
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -11,10 +9,10 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from httpx_oauth.clients.google import GoogleOAuth2
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from server.api.dependencies import get_user_db 
+from server.api.dependencies import get_user_db
 from server.db.models import User
 
 

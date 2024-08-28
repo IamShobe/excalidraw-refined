@@ -4,8 +4,8 @@ from typing import Generic, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
-from sqlalchemy.orm import aliased, defer
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, defer
 
 from server.db.models import File, Scene, SceneRevision
 
