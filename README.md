@@ -27,7 +27,7 @@ GRANT ALL ON SCHEMA "public" TO "excalidraw-refined";
 Use env var:
 
 ```bash
-export DB_URL=postgresql://excalidraw-refined:password@localhost:5432/excalidraw-refined
+export DB_URL=postgresql+asyncpg://excalidraw-refined:password@localhost:5432/excalidraw-refined
 ```
 
 ### Using k8s
@@ -64,3 +64,10 @@ Use:
 ```bash
 GITHUB_TOKEN=$(gh auth token) npx release-it
 ```
+
+
+## TODOs
+
+- [ ] library support - backed by indexedDB
+- [ ] Support users
+- [ ] live sessions collaborations

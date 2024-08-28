@@ -6,4 +6,6 @@
 __pycache__/
 .venv/
 
+.env*
+
 sql_app.db

@@ -1,26 +1,28 @@
 import dataclasses
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends, Query
-from sqlalchemy.orm import Session
+from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from server.db.models import OAuthAccount, User
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.controllers.scenes import SceneController
-from server.db.database import SessionLocal
+from server.db.database import async_session_maker
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
-db_dependency = Annotated[Session, Depends(get_db)]
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_maker() as session:
+        yield session
 
 
-def get_scene_controller(db: db_dependency):
-    return SceneController(db)
+async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+    yield SQLAlchemyUserDatabase(session, User, OAuthAccount)
+
+
+def get_scene_controller(session: AsyncSession = Depends(get_async_session)):
+    return SceneController(session)
 
 
 scene_controller_dependency = Annotated[SceneController, Depends(get_scene_controller)]

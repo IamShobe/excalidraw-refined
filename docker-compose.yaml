@@ -19,7 +19,7 @@ services:
   run-migrations:
     image: ghcr.io/iamshobe/excalidraw-refined_backend:latest
     environment:
-      - DB_URL=postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
+      - DB_URL=postgresql+asyncpg://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
     entrypoint: [ "alembic", "upgrade", "head" ]
     depends_on:
       db:
@@ -28,7 +28,7 @@ services:
   backend:
     image: ghcr.io/iamshobe/excalidraw-refined_backend:latest
     environment:
-      - DB_URL=postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
+      - DB_URL=postgresql+asyncpg://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
     command:
       - --host
       - "0.0.0.0"

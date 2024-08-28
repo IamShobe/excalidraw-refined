@@ -4,6 +4,10 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, Index, String, Text, CHAR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_easy_softdelete.mixin import generate_soft_delete_mixin_class
+from fastapi_users.db import (
+    SQLAlchemyBaseOAuthAccountTableUUID,
+    SQLAlchemyBaseUserTableUUID,
+)
 
 from .database import Base
 
@@ -14,11 +18,14 @@ class SoftDeleteMixin(generate_soft_delete_mixin_class()):
     deleted_at: datetime
 
 
-class User(Base):
-    __tablename__ = "users"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50))
-    created: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
+    pass
+
+
+class User(SQLAlchemyBaseUserTableUUID, Base):
+    oauth_accounts: Mapped[list[OAuthAccount]] = relationship(
+        "OAuthAccount", lazy="joined"
+    )
 
 
 class Scene(Base, SoftDeleteMixin):
@@ -28,11 +35,11 @@ class Scene(Base, SoftDeleteMixin):
     )
     name: Mapped[str] = mapped_column(String(50))
     description: Mapped[str] = mapped_column(String(512), server_default="")
-    created: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created: Mapped[datetime] = mapped_column(default=datetime.now)
     updated: Mapped[datetime] = mapped_column(
-        default=datetime.utcnow, onupdate=datetime.utcnow
+        default=datetime.now, onupdate=datetime.now,
     )
-    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey(User.id))
     owner: Mapped[User] = relationship()
     revisions: Mapped[list["SceneRevision"]] = relationship(back_populates="scene")
 
@@ -48,12 +55,12 @@ class SceneRevision(Base):
     id: Mapped[str] = mapped_column(
         CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
-    created: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    scene_id: Mapped[str] = mapped_column(ForeignKey("scenes.id"))
+    created: Mapped[datetime] = mapped_column(default=datetime.now)
+    scene_id: Mapped[str] = mapped_column(ForeignKey(Scene.id))
     scene: Mapped[Scene] = relationship(back_populates="revisions")
     picture: Mapped[str] = mapped_column(Text)
     data: Mapped[str] = mapped_column(Text)
-    commiter_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    commiter_id: Mapped[uuid.UUID] = mapped_column(ForeignKey(User.id))
     commiter: Mapped[User] = relationship()
 
     __table_args__ = (Index(None, created.desc()),)
@@ -64,10 +71,10 @@ class File(Base):
     id: Mapped[str] = mapped_column(
         CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
-    created: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created: Mapped[datetime] = mapped_column(default=datetime.now)
     name: Mapped[str] = mapped_column(String(50))
     data: Mapped[str] = mapped_column(Text)
-    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey(User.id))
     owner: Mapped[User] = relationship()
-    revision_id: Mapped[str] = mapped_column(ForeignKey("scenes_revisions.id"))
+    revision_id: Mapped[str] = mapped_column(ForeignKey(SceneRevision.id))
     revision: Mapped[SceneRevision] = relationship()

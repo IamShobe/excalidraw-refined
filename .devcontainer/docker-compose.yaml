@@ -10,5 +10,5 @@ services:
   dev:
     image: "ghcr.io/iamshobe/excalidraw-refined_dev:latest"
     environment:
-      DB_URL: postgresql://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
+      DB_URL: postgresql+asyncpg://excalidraw-refined:excalidraw-refined@db:5432/excalidraw-refined
     

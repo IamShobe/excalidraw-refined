@@ -5,7 +5,7 @@ App is written with PSQL dialect in mind.
 Define DB connection string in environment variable `DB_URL`:
 for psql:
 ```bash
-export DB_URL=postgresql://excalidraw-refined:excalidraw-refined@localhost:15432/excalidraw-refined
+export DB_URL=postgresql+asyncpg://excalidraw-refined:excalidraw-refined@localhost:15432/excalidraw-refined
 ```
 
 To create DB only you can use:
