@@ -10,7 +10,9 @@ app = fastapi.FastAPI()
 app.include_router(v1_app, prefix="/api/v1")
 
 app.include_router(
-    fastapi_users.get_auth_router(cookie_backend), prefix="/auth/jwt", tags=["auth"]
+    fastapi_users.get_auth_router(cookie_backend), 
+    prefix="/auth/jwt", 
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),

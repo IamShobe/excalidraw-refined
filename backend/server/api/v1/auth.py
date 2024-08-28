@@ -2,14 +2,12 @@ import uuid
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.security import HTTPBearer
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
     CookieTransport,
     JWTStrategy,
-    Transport,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.clients.google import GoogleOAuth2
