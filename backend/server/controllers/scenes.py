@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, defer
 
-from server.db.models import File, Scene, SceneRevision
+from server.db.models import File, Scene, SceneRevision, User
 
 
 class BaseSceneWithRevision(BaseModel):
@@ -61,13 +61,14 @@ class SceneController:
         self.db_session = db_session
 
     async def get_scene_with_latest_revision(
-        self, scene_id: str
+        self, user: User, scene_id: str
     ) -> EnrichedSceneWithRevision:
         query = (
             select(
                 SceneRevision,
                 Scene,
             )
+            .where(Scene.owner_id == user.id)
             .join(Scene)
             .distinct(Scene.id)
             .order_by(
@@ -84,10 +85,10 @@ class SceneController:
         revision, scene = result.tuple()
 
         files_ids = (
-            (await self.db_session.execute(
-                select(File.id).where(File.revision_id == revision.id)
-            )).all()
-        )
+            await self.db_session.execute(
+                select(File.id).where(File.revision_id == revision.id, File.owner_id == user.id)
+            )
+        ).all()
 
         return EnrichedSceneWithRevision(
             id=scene.id,
@@ -99,8 +100,10 @@ class SceneController:
             files_ids=[file_id for (file_id,) in files_ids],
         )
 
-    async def get_scene_file(self, file_id: str) -> SceneFileWithId:
-        found_file = (await self.db_session.execute(select(File).where(File.id == file_id))).scalar()
+    async def get_scene_file(self, user: User, file_id: str) -> SceneFileWithId:
+        found_file = (
+            await self.db_session.execute(select(File).where(File.id == file_id, File.owner_id == user.id))
+        ).scalar()
         if found_file is None:
             raise ValueError(f"File with id {file_id} not found")
 
@@ -110,8 +113,15 @@ class SceneController:
             data=found_file.data,
         )
 
-    async def add_file_to_scene(self, revision_id: str, scene_file: SceneFile) -> SceneFile:
-        f = File(name=scene_file.name, data=scene_file.data, revision_id=revision_id, owner_id=0)
+    async def add_file_to_scene(
+        self, user: User, revision_id: str, scene_file: SceneFile
+    ) -> SceneFile:
+        f = File(
+            name=scene_file.name,
+            data=scene_file.data,
+            revision_id=revision_id,
+            owner=user,
+        )
         self.db_session.add(f)
         await self.db_session.commit()
         await self.db_session.refresh(f)
@@ -123,6 +133,7 @@ class SceneController:
 
     async def get_scenes(
         self,
+        user: User,
         name_filter: str = None,
         from_timestamp: Optional[str] = None,
         limit=10,
@@ -133,6 +144,7 @@ class SceneController:
                 SceneRevision,
                 Scene,
             )
+            .where(Scene.owner_id == user.id)
             .options(defer(SceneRevision.data))
             .join(Scene)
             .distinct(Scene.id)
@@ -156,9 +168,11 @@ class SceneController:
 
         query = select(scene_alias, revision_alias).order_by(scene_alias.created.desc())
 
-        total = (await self.db_session.execute(
-            select(func.count()).select_from(query.subquery())
-        )).scalar()
+        total = (
+            await self.db_session.execute(
+                select(func.count()).select_from(query.subquery())
+            )
+        ).scalar()
 
         query = query.limit(limit)
         if from_timestamp is not None:
@@ -196,20 +210,24 @@ class SceneController:
         )
 
     async def create_scene_with_revision(
-        self, wanted_scene: BaseSceneWithRevision,
+        self, user: User, wanted_scene: BaseSceneWithRevision,
     ) -> EnrichedSceneWithRevision:
         scene = Scene(
-            name=wanted_scene.name, description=wanted_scene.description, owner_id=0,
+            name=wanted_scene.name,
+            description=wanted_scene.description,
+            owner=user,
         )
         revision = SceneRevision(
             scene=scene,
             data=wanted_scene.data,
             picture=wanted_scene.picture,
-            commiter_id=0,
+            commiter=user,
         )
         self.db_session.add(scene, revision)
         await self.db_session.commit()
-        await asyncio.gather(self.db_session.refresh(scene), self.db_session.refresh(revision))
+        await asyncio.gather(
+            self.db_session.refresh(scene), self.db_session.refresh(revision)
+        )
         return EnrichedSceneWithRevision(
             id=scene.id,
             revision_id=revision.id,
@@ -220,9 +238,11 @@ class SceneController:
         )
 
     async def update_scene(
-        self, scene_id: str, wanted_scene: BaseSceneWithRevision
+        self, user: User, scene_id: str, wanted_scene: BaseSceneWithRevision
     ) -> EnrichedSceneWithRevision:
-        scene = (await self.db_session.execute(select(Scene).where(Scene.id == scene_id))).scalar()
+        scene = (
+            await self.db_session.execute(select(Scene).where(Scene.id == scene_id, Scene.owner_id == user.id))
+        ).scalar()
         if scene is None:
             raise ValueError(f"Scene with id {scene_id} not found")
 
@@ -236,7 +256,9 @@ class SceneController:
         scene.description = wanted_scene.description
         self.db_session.add(revision)
         await self.db_session.commit()
-        await asyncio.gather(self.db_session.refresh(scene), self.db_session.refresh(revision))
+        await asyncio.gather(
+            self.db_session.refresh(scene), self.db_session.refresh(revision)
+        )
 
         return EnrichedSceneWithRevision(
             id=scene.id,
@@ -247,8 +269,10 @@ class SceneController:
             data=revision.data,
         )
 
-    async def delete_scene(self, scene_id: str) -> None:
-        scene = (await self.db_session.execute(select(Scene).where(Scene.id == scene_id))).scalar()
+    async def delete_scene(self, user: User, scene_id: str) -> None:
+        scene = (
+            await self.db_session.execute(select(Scene).where(Scene.id == scene_id, Scene.owner_id == user.id))
+        ).scalar()
         if scene is None:
             raise ValueError(f"Scene with id {scene_id} not found")
 

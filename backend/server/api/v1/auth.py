@@ -1,11 +1,14 @@
 import uuid
-from typing import Optional
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Request
+from fastapi.security import HTTPBearer
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
+    Transport,
     BearerTransport,
+    CookieTransport,
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
@@ -54,7 +57,25 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db
     yield UserManager(user_db)
 
 
+class HTTPBearerScheme(HTTPBearer):
+    async def __call__(self, request: Request):
+        token = await super().__call__(request)
+        if token is None:
+            return None
+
+        return token.credentials
+
+
+class BearerTokenOnlyTransport(Transport):
+    scheme: HTTPBearerScheme
+
+    def __init__(self):
+        self.scheme = HTTPBearerScheme()
+
+
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+# this was added only for interactive docs
+token_only_transport = BearerTokenOnlyTransport()
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -67,16 +88,24 @@ auth_backend = AuthenticationBackend(
     get_strategy=get_jwt_strategy,
 )
 
-fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
+auth_backend2 = AuthenticationBackend(
+    name="token_only",
+    transport=token_only_transport,
+    get_strategy=get_jwt_strategy,
+)
+
+fastapi_users = FastAPIUsers[User, uuid.UUID](
+    get_user_manager, [auth_backend, auth_backend2]
+)
 
 current_active_user = fastapi_users.current_user(active=True)
 
 
 router = APIRouter()
 
+user_dependency = Annotated[User, Depends(current_active_user)]
+
 
 @router.get("/protected")
-async def protected(
-    user: User = Depends(current_active_user)
-):
+async def protected(user: user_dependency):
     return user

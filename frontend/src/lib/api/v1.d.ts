@@ -27,6 +27,63 @@ export interface paths {
     /** Get Scene File */
     get: operations["get_scene_file_api_v1_scene_files__file_id__get"];
   };
+  "/api/v1/protected": {
+    /** Protected */
+    get: operations["protected_api_v1_protected_get"];
+  };
+  "/auth/jwt/login": {
+    /** Auth:Jwt.Login */
+    post: operations["auth_jwt_login_auth_jwt_login_post"];
+  };
+  "/auth/jwt/logout": {
+    /** Auth:Jwt.Logout */
+    post: operations["auth_jwt_logout_auth_jwt_logout_post"];
+  };
+  "/auth/register": {
+    /** Register:Register */
+    post: operations["register_register_auth_register_post"];
+  };
+  "/auth/forgot-password": {
+    /** Reset:Forgot Password */
+    post: operations["reset_forgot_password_auth_forgot_password_post"];
+  };
+  "/auth/reset-password": {
+    /** Reset:Reset Password */
+    post: operations["reset_reset_password_auth_reset_password_post"];
+  };
+  "/auth/request-verify-token": {
+    /** Verify:Request-Token */
+    post: operations["verify_request_token_auth_request_verify_token_post"];
+  };
+  "/auth/verify": {
+    /** Verify:Verify */
+    post: operations["verify_verify_auth_verify_post"];
+  };
+  "/users/me": {
+    /** Users:Current User */
+    get: operations["users_current_user_users_me_get"];
+    /** Users:Patch Current User */
+    patch: operations["users_patch_current_user_users_me_patch"];
+  };
+  "/users/{id}": {
+    /** Users:User */
+    get: operations["users_user_users__id__get"];
+    /** Users:Delete User */
+    delete: operations["users_delete_user_users__id__delete"];
+    /** Users:Patch User */
+    patch: operations["users_patch_user_users__id__patch"];
+  };
+  "/auth/google/authorize": {
+    /** Oauth:Google.Jwt.Authorize */
+    get: operations["oauth_google_jwt_authorize_auth_google_authorize_get"];
+  };
+  "/auth/google/callback": {
+    /**
+     * Oauth:Google.Jwt.Callback
+     * @description The response varies based on the authentication backend used.
+     */
+    get: operations["oauth_google_jwt_callback_auth_google_callback_get"];
+  };
   "/": {
     /** Hello */
     get: operations["hello__get"];
@@ -43,16 +100,63 @@ export interface components {
       name: string;
       /** Description */
       description: string;
-      /**
-       * Picture
-       * Format: binary
-       */
+      /** Picture */
       picture: string;
-      /**
-       * Data
-       * Format: binary
-       */
+      /** Data */
       data: string;
+    };
+    /** BearerResponse */
+    BearerResponse: {
+      /** Access Token */
+      access_token: string;
+      /** Token Type */
+      token_type: string;
+    };
+    /** Body_auth_jwt_login_auth_jwt_login_post */
+    Body_auth_jwt_login_auth_jwt_login_post: {
+      /** Grant Type */
+      grant_type?: string | null;
+      /** Username */
+      username: string;
+      /** Password */
+      password: string;
+      /**
+       * Scope
+       * @default
+       */
+      scope?: string;
+      /** Client Id */
+      client_id?: string | null;
+      /** Client Secret */
+      client_secret?: string | null;
+    };
+    /** Body_reset_forgot_password_auth_forgot_password_post */
+    Body_reset_forgot_password_auth_forgot_password_post: {
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+    };
+    /** Body_reset_reset_password_auth_reset_password_post */
+    Body_reset_reset_password_auth_reset_password_post: {
+      /** Token */
+      token: string;
+      /** Password */
+      password: string;
+    };
+    /** Body_verify_request_token_auth_request_verify_token_post */
+    Body_verify_request_token_auth_request_verify_token_post: {
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+    };
+    /** Body_verify_verify_auth_verify_post */
+    Body_verify_verify_auth_verify_post: {
+      /** Token */
+      token: string;
     };
     /** CursorPage[SceneSummary] */
     CursorPage_SceneSummary_: {
@@ -73,15 +177,9 @@ export interface components {
       name: string;
       /** Description */
       description: string;
-      /**
-       * Picture
-       * Format: binary
-       */
+      /** Picture */
       picture: string;
-      /**
-       * Data
-       * Format: binary
-       */
+      /** Data */
       data: string;
       /** Id */
       id: string;
@@ -90,29 +188,35 @@ export interface components {
       /** Files Ids */
       files_ids?: string[];
     };
+    /** ErrorModel */
+    ErrorModel: {
+      /** Detail */
+      detail: string | {
+        [key: string]: string;
+      };
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
+    /** OAuth2AuthorizeResponse */
+    OAuth2AuthorizeResponse: {
+      /** Authorization Url */
+      authorization_url: string;
+    };
     /** SceneFile */
     SceneFile: {
       /** Name */
       name: string;
-      /**
-       * Data
-       * Format: binary
-       */
+      /** Data */
       data: string;
     };
     /** SceneFileWithId */
     SceneFileWithId: {
       /** Name */
       name: string;
-      /**
-       * Data
-       * Format: binary
-       */
+      /** Data */
       data: string;
       /** Id */
       id: string;
@@ -137,11 +241,74 @@ export interface components {
       name: string;
       /** Description */
       description: string;
-      /**
-       * Picture
-       * Format: binary
-       */
+      /** Picture */
       picture: string;
+    };
+    /** UserCreate */
+    UserCreate: {
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+      /** Password */
+      password: string;
+      /**
+       * Is Active
+       * @default true
+       */
+      is_active?: boolean | null;
+      /**
+       * Is Superuser
+       * @default false
+       */
+      is_superuser?: boolean | null;
+      /**
+       * Is Verified
+       * @default false
+       */
+      is_verified?: boolean | null;
+    };
+    /** UserRead */
+    UserRead: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+      /**
+       * Is Active
+       * @default true
+       */
+      is_active?: boolean;
+      /**
+       * Is Superuser
+       * @default false
+       */
+      is_superuser?: boolean;
+      /**
+       * Is Verified
+       * @default false
+       */
+      is_verified?: boolean;
+    };
+    /** UserUpdate */
+    UserUpdate: {
+      /** Password */
+      password?: string | null;
+      /** Email */
+      email?: string | null;
+      /** Is Active */
+      is_active?: boolean | null;
+      /** Is Superuser */
+      is_superuser?: boolean | null;
+      /** Is Verified */
+      is_verified?: boolean | null;
     };
     /** ValidationError */
     ValidationError: {
@@ -322,6 +489,402 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["SceneFileWithId"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Protected */
+  protected_api_v1_protected_get: {
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  /** Auth:Jwt.Login */
+  auth_jwt_login_auth_jwt_login_post: {
+    requestBody: {
+      content: {
+        "application/x-www-form-urlencoded": components["schemas"]["Body_auth_jwt_login_auth_jwt_login_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["BearerResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorModel"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Auth:Jwt.Logout */
+  auth_jwt_logout_auth_jwt_logout_post: {
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Missing token or inactive user. */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Register:Register */
+  register_register_auth_register_post: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        content: {
+          "application/json": components["schemas"]["UserRead"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorModel"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Reset:Forgot Password */
+  reset_forgot_password_auth_forgot_password_post: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Body_reset_forgot_password_auth_forgot_password_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      202: {
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Reset:Reset Password */
+  reset_reset_password_auth_reset_password_post: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Body_reset_reset_password_auth_reset_password_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorModel"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Verify:Request-Token */
+  verify_request_token_auth_request_verify_token_post: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Body_verify_request_token_auth_request_verify_token_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      202: {
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Verify:Verify */
+  verify_verify_auth_verify_post: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Body_verify_verify_auth_verify_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserRead"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorModel"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Users:Current User */
+  users_current_user_users_me_get: {
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserRead"];
+        };
+      };
+      /** @description Missing token or inactive user. */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Users:Patch Current User */
+  users_patch_current_user_users_me_patch: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserRead"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorModel"];
+        };
+      };
+      /** @description Missing token or inactive user. */
+      401: {
+        content: never;
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Users:User */
+  users_user_users__id__get: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserRead"];
+        };
+      };
+      /** @description Missing token or inactive user. */
+      401: {
+        content: never;
+      };
+      /** @description Not a superuser. */
+      403: {
+        content: never;
+      };
+      /** @description The user does not exist. */
+      404: {
+        content: never;
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Users:Delete User */
+  users_delete_user_users__id__delete: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      204: {
+        content: never;
+      };
+      /** @description Missing token or inactive user. */
+      401: {
+        content: never;
+      };
+      /** @description Not a superuser. */
+      403: {
+        content: never;
+      };
+      /** @description The user does not exist. */
+      404: {
+        content: never;
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Users:Patch User */
+  users_patch_user_users__id__patch: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserRead"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorModel"];
+        };
+      };
+      /** @description Missing token or inactive user. */
+      401: {
+        content: never;
+      };
+      /** @description Not a superuser. */
+      403: {
+        content: never;
+      };
+      /** @description The user does not exist. */
+      404: {
+        content: never;
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Oauth:Google.Jwt.Authorize */
+  oauth_google_jwt_authorize_auth_google_authorize_get: {
+    parameters: {
+      query?: {
+        scopes?: string[];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["OAuth2AuthorizeResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /**
+   * Oauth:Google.Jwt.Callback
+   * @description The response varies based on the authentication backend used.
+   */
+  oauth_google_jwt_callback_auth_google_callback_get: {
+    parameters: {
+      query?: {
+        code?: string | null;
+        code_verifier?: string | null;
+        state?: string | null;
+        error?: string | null;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorModel"];
         };
       };
       /** @description Validation Error */

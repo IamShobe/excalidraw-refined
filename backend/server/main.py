@@ -3,7 +3,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from server.api.v1.auth import SECRET, auth_backend, fastapi_users, google_oauth_client
 from server.api.v1.router import v1_app
-from server.api.v1.users import UserRead, UserUpdate
+from server.api.v1.users import UserRead, UserUpdate, UserCreate
 
 app = fastapi.FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="some-random-string")
@@ -13,6 +13,11 @@ app.include_router(v1_app, prefix="/api/v1")
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
+)
+app.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix="/auth",
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_reset_password_router(),
