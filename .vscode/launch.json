@@ -10,7 +10,7 @@
             "name": "Launch backend",
             "module": "uvicorn",
             "args": [
-                "backend.main:app",
+                "backend.server.main:app",
                 "--reload",
                 "--host",
                 "0.0.0.0",
