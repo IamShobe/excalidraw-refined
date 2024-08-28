@@ -6,10 +6,10 @@ from fastapi.security import HTTPBearer
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
-    Transport,
     BearerTransport,
     CookieTransport,
     JWTStrategy,
+    Transport,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.clients.google import GoogleOAuth2
@@ -57,25 +57,8 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db
     yield UserManager(user_db)
 
 
-class HTTPBearerScheme(HTTPBearer):
-    async def __call__(self, request: Request):
-        token = await super().__call__(request)
-        if token is None:
-            return None
-
-        return token.credentials
-
-
-class BearerTokenOnlyTransport(Transport):
-    scheme: HTTPBearerScheme
-
-    def __init__(self):
-        self.scheme = HTTPBearerScheme()
-
-
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
-# this was added only for interactive docs
-token_only_transport = BearerTokenOnlyTransport()
+cookie_transport = CookieTransport("session")
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -88,14 +71,14 @@ auth_backend = AuthenticationBackend(
     get_strategy=get_jwt_strategy,
 )
 
-auth_backend2 = AuthenticationBackend(
-    name="token_only",
-    transport=token_only_transport,
+cookie_backend = AuthenticationBackend(
+    name="jwtcookie",
+    transport=cookie_transport,
     get_strategy=get_jwt_strategy,
 )
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](
-    get_user_manager, [auth_backend, auth_backend2]
+    get_user_manager, [auth_backend, cookie_backend]
 )
 
 current_active_user = fastapi_users.current_user(active=True)
