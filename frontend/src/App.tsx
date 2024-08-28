@@ -11,11 +11,7 @@ import BrowseScenesModal from "./BrowseScenesModal.tsx";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { toBase64 } from "./utils/strings.ts";
 import {
-  useDeleteSceneMutation,
-  useSaveSceneFileToServerMutation,
-  useSaveSceneToServerMutation,
-  useScene,
-  useSceneFiles, useUpdateSceneMutation,
+  useSceneFiles,
 } from "./api-hooks.ts";
 import { BrowserRouter, createSearchParams, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import SaveAsSceneModal from "./SaveAsSceneModal.tsx";
@@ -23,6 +19,14 @@ import { MdOutlineSave, MdOutlineSaveAs } from "react-icons/md";
 import { CgBrowse } from "react-icons/cg";
 import { BiReset } from "react-icons/bi";
 import { useHash } from "react-use";
+import {
+  useGetSceneApiV1ScenesSceneIdGet,
+  useCreateSceneApiV1ScenesPost,
+  useUpdateSceneApiV1ScenesSceneIdPut,
+  useAddSceneFileApiV1SceneFilesPost,
+  useDeleteSceneApiV1ScenesSceneIdDelete,
+  useGetSceneFileApiV1SceneFilesFileIdGet,
+} from "./lib/api/default/default.ts";
 
 
 const queryClient = new QueryClient();
@@ -34,17 +38,22 @@ function App() {
   const browseScenesDisclosure = useDisclosure();
   const saveSceneDisclosure = useDisclosure();
 
-  const saveSceneToServerMutation = useSaveSceneToServerMutation();
-  const saveSceneFileToServerMutation = useSaveSceneFileToServerMutation();
-  const deleteSceneMutation = useDeleteSceneMutation();
-  const updateSceneMutation = useUpdateSceneMutation();
+  // const saveSceneToServerMutation = useSaveSceneToServerMutation();
+  const saveSceneToServerMutation = useCreateSceneApiV1ScenesPost();
+  const saveSceneFileToServerMutation = useAddSceneFileApiV1SceneFilesPost();
+  const updateSceneMutation = useUpdateSceneApiV1ScenesSceneIdPut();
+  const deleteSceneMutation = useDeleteSceneApiV1ScenesSceneIdDelete();
 
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const [hash, setHash] = useHash();
 
-  const sceneQuery = useScene(id);
+  const sceneQuery = useGetSceneApiV1ScenesSceneIdGet(id!, {
+    query: {
+      enabled: id !== undefined,
+    }
+  });
   const fileIds = useMemo(() => sceneQuery.data?.files_ids ?? [], [sceneQuery.data]);
   const sceneFilesQueries = useSceneFiles(fileIds);
 
@@ -190,10 +199,12 @@ function App() {
 
     const updatedScene = await updateSceneMutation.mutateAsync({
       sceneId: id,
-      name: sceneQuery.data?.name ?? "",
-      description: sceneQuery.data?.description ?? "",
-      picture: await exportToImageBase64({ elements, appState, files }),
-      data: JSON.stringify({ elements, collaborators: [] }),
+      data: {
+        name: sceneQuery.data?.name ?? "",
+        description: sceneQuery.data?.description ?? "",
+        picture: await exportToImageBase64({ elements, appState, files }),
+        data: JSON.stringify({ elements, collaborators: [] }),
+      }
     });
 
     if (updatedScene.error) {
@@ -204,8 +215,10 @@ function App() {
     // if this part fails - we lose the files
     const promises = Object.entries(files).map(([key, value]) => {
       return saveSceneFileToServerMutation.mutateAsync({
-        revisionId: updatedScene.data.revision_id,
         params: {
+          revision_id: updatedScene.data.revision_id,
+        },
+        data: {
           name: key,
           data: JSON.stringify(value),
         },
@@ -288,10 +301,12 @@ function App() {
     const appState = excalidrawAPI.getAppState();
 
     const savedScene = await saveSceneToServerMutation.mutateAsync({
-      name: sceneName,
-      description,
-      picture: await exportToImageBase64({ elements, appState, files }),
-      data: JSON.stringify({ elements, collaborators: [] }),
+      data: {
+        name: sceneName,
+        description,
+        picture: await exportToImageBase64({ elements, appState, files }),
+        data: JSON.stringify({ elements, collaborators: [] }),
+      }
     });
 
     if (savedScene.error) {
@@ -302,8 +317,10 @@ function App() {
     // if this part fails - we lose the files
     const promises = Object.entries(files).map(([key, value]) => {
       return saveSceneFileToServerMutation.mutateAsync({
-        revisionId: savedScene.data.revision_id,
         params: {
+          revision_id: savedScene.data.revision_id,
+        },
+        data: {
           name: key,
           data: JSON.stringify(value),
         },
@@ -320,7 +337,7 @@ function App() {
   };
 
   const deleteFromServer = async (sceneId: string) => {
-    await deleteSceneMutation.mutateAsync(sceneId);
+    await deleteSceneMutation.mutateAsync({ sceneId });
   }
 
   window.saveToServer = saveToServer;

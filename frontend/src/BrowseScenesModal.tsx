@@ -23,13 +23,25 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
+import { AxiosResponse } from "axios";
 import {SearchIcon} from "@chakra-ui/icons";
 import {IoMdRefresh} from "react-icons/io";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {useDebounce} from "react-use";
 import {useQueryClient} from "@tanstack/react-query";
-import {useScenes} from "./api-hooks.ts";
 import SceneCard from "./SceneCard.tsx";
+import {
+  getScenesApiV1ScenesGet,
+  useGetScenesApiV1ScenesGetInfinite, 
+} from "./lib/api/default/default.ts";
+
+import {
+  CursorPageSceneSummary
+} from "./model/cursorPageSceneSummary";
+
+import type {
+  InfiniteData,
+} from '@tanstack/react-query';
 
 
 const BrowseScenesModal: React.FC<{
@@ -58,9 +70,13 @@ const BrowseScenesModal: React.FC<{
 
   const client = useQueryClient();
 
-  const {isLoading, error, data, fetchNextPage, hasNextPage} = useScenes({
-    enabled: isOpen,
-    search: debouncedSearch,
+
+  const {isLoading, error, data, fetchNextPage, hasNextPage} = useGetScenesApiV1ScenesGetInfinite<InfiniteData<AxiosResponse<CursorPageSceneSummary>>>({
+    name_filter: debouncedSearch,
+  }, {
+    query: {
+      enabled: isOpen,
+    }
   });
 
 
@@ -125,7 +141,7 @@ const BrowseScenesModal: React.FC<{
                     >
                       <Grid templateColumns="repeat(auto-fill, minmax(20em, 1fr))" gap={6} padding={2}>
                         {
-                          data?.pages.map((page) => {
+                          data?.pages.map((page: AxiosResponse<CursorPageSceneSummary>) => {
                             return page.items.map((scene) =>
                               <GridItem key={scene.id}>
                                 <SceneCard scene={scene}
