@@ -1,4 +1,4 @@
-import Axios, { AxiosRequestConfig } from 'axios';
+import Axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 // auth is performed using a cookie
 export const AXIOS_INSTANCE = Axios.create({});
@@ -19,21 +19,7 @@ export const customInstance = <T>(
         source.cancel('Query was cancelled');
     };
 
-    AXIOS_INSTANCE.interceptors.response.use(
-        (response) => response,
-        (error) => {
-            if (Axios.isCancel(error)) {
-                return Promise.reject(new Error('Query was cancelled'));
-            }
-
-            // check 401 and redirect to login
-            if (error.response.status === 401) {
-                window.location.href = '/?origin=' + window.location.pathname;
-            }
-
-            return Promise.reject(error);
-        },
-    );
-
     return promise;
 };
+
+export type ErrorType<Error> = AxiosError<Error>;

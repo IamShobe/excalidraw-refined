@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 export const createWrapper = (magicPrefix: string = "_MUW_") => {
     const wrapOAuth2Authorize = (authorizationUrl: string) => {
@@ -51,9 +51,9 @@ export const createWrapper = (magicPrefix: string = "_MUW_") => {
                 return await axios.get(location);
             },
             unwrap: (options?: {
-                assertState?: <T,>(state: T) => void,
+                assertState?: <T, >(state: T) => void,
             }) => {
-                const {state, code} = verifyUrl();
+                const { state, code } = verifyUrl();
                 if (!state.startsWith(magicPrefix)) {
                     throw new Error('Invalid state');
                 }
@@ -66,7 +66,7 @@ export const createWrapper = (magicPrefix: string = "_MUW_") => {
 
                 options?.assertState?.(additionalState);
 
-                return oauth2CallbackUnwrapper(callbackUrl.toString()); 
+                return oauth2CallbackUnwrapper(callbackUrl.toString());
             }
         }
     }

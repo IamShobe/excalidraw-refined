@@ -1,21 +1,22 @@
 import uuid
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
-    CookieTransport,
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.clients.google import GoogleOAuth2
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from .users import UserRead, UserUpdate, UserCreate
 from server.api.dependencies import get_user_db
+from server.api.v1.redirect_cookie_transport import RedirectCookieTransport
 from server.db.models import User
+
+from .users import UserCreate, UserRead, UserUpdate
 
 
 class AuthSettings(BaseSettings):
@@ -52,12 +53,14 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
 
-async def get_user_manager(user_db: Annotated[SQLAlchemyUserDatabase, Depends(get_user_db)]):
+async def get_user_manager(
+    user_db: Annotated[SQLAlchemyUserDatabase, Depends(get_user_db)],
+):
     yield UserManager(user_db)
 
 
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
-cookie_transport = CookieTransport("session")
+cookie_transport = RedirectCookieTransport("/callback")
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -89,8 +92,8 @@ router = APIRouter()
 
 
 router.include_router(
-    fastapi_users.get_auth_router(cookie_backend), 
-    prefix="/auth/jwt", 
+    fastapi_users.get_auth_router(cookie_backend),
+    prefix="/auth/jwt",
     tags=["auth"],
 )
 router.include_router(

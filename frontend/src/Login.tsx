@@ -1,3 +1,4 @@
+import {useEffect} from "react";
 import { Formik, Field } from "formik";
 import {
     Box,
@@ -10,20 +11,22 @@ import {
     VStack,
     Divider,
 } from "@chakra-ui/react";
-import axios from "axios";
+import { FcGoogle } from "react-icons/fc";
 
 import { wrapOAuth2Authorize } from "./utils/oauth2Wrapper";
+import { oauthGoogleJwtcookieAuthorizeApiV1AuthGoogleAuthorizeGet } from "./gen/api/auth/auth";
 
 
 const Comp = () => {
-    return <button onClick={async () => {
-        const resp = await axios.get<{ authorization_url: string }>('/api/v1/auth/google/authorize');
-        wrapOAuth2Authorize(resp.data.authorization_url).addRedirectPath("/callback/google").authorize();
-    }}>login google</button>
+    const login = async () => {
+        const resp = await oauthGoogleJwtcookieAuthorizeApiV1AuthGoogleAuthorizeGet();
+        wrapOAuth2Authorize(resp.authorization_url).authorize();
+    }
+
+    return <Button onClick={login}><FcGoogle /></Button>
 }
 
 export const Login = () => {
-
     return (
         <Flex bg="gray.100" align="center" justify="center" h="100vh">
             <Box bg="white" p={6} rounded="md" w="md">

@@ -1,23 +1,29 @@
-import { ChakraProvider, Flex, Text, useToast } from "@chakra-ui/react";
-import { Excalidraw, exportToBlob, MainMenu, WelcomeScreen } from "@excalidraw/excalidraw";
+import { Center, ChakraProvider, CircularProgress, Flex, Text, useToast } from "@chakra-ui/react";
+import { Excalidraw, exportToBlob, MainMenu, restore, WelcomeScreen } from "@excalidraw/excalidraw";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 import type { AppState, BinaryFiles, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 
 import { useDisclosure } from "@chakra-ui/hooks";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import axios from "axios";
 import { BiReset } from "react-icons/bi";
 import { CgBrowse } from "react-icons/cg";
 import { MdOutlineSave, MdOutlineSaveAs } from "react-icons/md";
-import { BrowserRouter, createSearchParams, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Await, createBrowserRouter, createRoutesFromElements, createSearchParams, defer, IndexRouteObject, Outlet, redirect, Route, RouterProvider, useLoaderData, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useHash } from "react-use";
 import { useDeleteSceneMutation, useSaveSceneFileToServerMutation, useSaveSceneToServerMutation, useScene, useSceneFiles, useUpdateSceneMutation } from "./api-hooks.ts";
+import { AXIOS_INSTANCE } from "./api/axios.ts";
 import "./App.css";
 import BrowseScenesModal from "./BrowseScenesModal.tsx";
+import { getUsersCurrentUserApiV1UsersMeGetQueryOptions, usersCurrentUserApiV1UsersMeGet, useUsersCurrentUserApiV1UsersMeGet } from "./gen/api/users/users.ts";
+import Login from "./Login.tsx";
 import SaveAsSceneModal from "./SaveAsSceneModal.tsx";
 import { toBase64 } from "./utils/strings.ts";
-import Login from "./Login.tsx";
+import { ON_UNAUTHORIZED_REDIRECT_TO, restoreSourceLocation, storeSourceLocation } from "./utils/routeUtils.ts";
+
+
 
 
 const queryClient = new QueryClient();
@@ -39,7 +45,7 @@ function App() {
   const location = useLocation();
   const [hash, setHash] = useHash();
 
-  const sceneQuery = useScene(id!);
+  const sceneQuery = useScene(id);
   const fileIds = useMemo(() => sceneQuery.data?.files_ids ?? [], [sceneQuery.data]);
   const sceneFilesQueries = useSceneFiles(fileIds);
 
@@ -433,19 +439,53 @@ function App() {
   );
 }
 
-const ProvidedApp = () => (
-  <ChakraProvider>
-    <BrowserRouter>
+const Root = () => {
+  return (
+    <ChakraProvider>
       <QueryClientProvider client={queryClient}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-
-          <Route path="/scenes/:id" element={<App />} />
-          <Route path={"*"} element={<App />} />
-        </Routes>
+        <Outlet />
       </QueryClientProvider>
-    </BrowserRouter>
-  </ChakraProvider>
-);
+    </ChakraProvider>
+  );
+}
+
+const protectedRouteLoader: IndexRouteObject["loader"] = async ({ request }) => {
+  const queryOptions = getUsersCurrentUserApiV1UsersMeGetQueryOptions();
+  try {
+    return defer({
+      user: await queryClient.fetchQuery(queryOptions),
+    });
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        storeSourceLocation(new URL(request.url));
+        return redirect(ON_UNAUTHORIZED_REDIRECT_TO);
+      }
+    }
+
+    throw new Response("Unexpected error occured", { status: 500 });
+  }
+}
+
+const ProtectedRoute = () => {
+  const { user } = useLoaderData() as { user: Awaited<ReturnType<typeof usersCurrentUserApiV1UsersMeGet>> };
+  return <Outlet context={{ user }} />;
+}
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<Root />}>
+      <Route path="login/" element={<Login />} />
+      <Route path="callback/" loader={() => redirect(restoreSourceLocation())} />
+
+      <Route loader={protectedRouteLoader} id="root" element={<ProtectedRoute />}>
+        <Route index element={<App />} />
+        <Route path="scenes/:id" element={<App />} />
+      </Route>
+    </Route>
+  ),
+)
+
+const ProvidedApp = () => <RouterProvider router={router} />;
 
 export default ProvidedApp;

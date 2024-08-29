@@ -36,6 +36,7 @@ import type {
   SceneFileWithId
 } from '../../model'
 import { customInstance } from '../../../api/axios';
+import type { ErrorType } from '../../../api/axios';
 
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
@@ -63,7 +64,7 @@ export const getGetScenesApiV1ScenesGetQueryKey = (params?: GetScenesApiV1Scenes
     }
 
     
-export const getGetScenesApiV1ScenesGetInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = HTTPValidationError>(params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData, Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, QueryKey, GetScenesApiV1ScenesGetParams['cursor']>>, request?: SecondParameter<typeof customInstance>}
+export const getGetScenesApiV1ScenesGetInfiniteQueryOptions = <TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = ErrorType<HTTPValidationError>>(params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData, Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, QueryKey, GetScenesApiV1ScenesGetParams['cursor']>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -82,10 +83,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetScenesApiV1ScenesGetInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>>
-export type GetScenesApiV1ScenesGetInfiniteQueryError = HTTPValidationError
+export type GetScenesApiV1ScenesGetInfiniteQueryError = ErrorType<HTTPValidationError>
 
 
-export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = ErrorType<HTTPValidationError>>(
  params: undefined |  GetScenesApiV1ScenesGetParams, options: { query:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData, Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, QueryKey, GetScenesApiV1ScenesGetParams['cursor']>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>,
@@ -95,7 +96,7 @@ export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  DefinedUseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = ErrorType<HTTPValidationError>>(
  params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData, Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, QueryKey, GetScenesApiV1ScenesGetParams['cursor']>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>,
@@ -105,7 +106,7 @@ export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = ErrorType<HTTPValidationError>>(
  params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData, Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, QueryKey, GetScenesApiV1ScenesGetParams['cursor']>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
@@ -113,7 +114,7 @@ export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<
  * @summary Get Scenes
  */
 
-export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, GetScenesApiV1ScenesGetParams['cursor']>, TError = ErrorType<HTTPValidationError>>(
  params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseInfiniteQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData, Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, QueryKey, GetScenesApiV1ScenesGetParams['cursor']>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -129,7 +130,7 @@ export function useGetScenesApiV1ScenesGetInfinite<TData = InfiniteData<Awaited<
 
 
 
-export const getGetScenesApiV1ScenesGetQueryOptions = <TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = HTTPValidationError>(params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getGetScenesApiV1ScenesGetQueryOptions = <TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = ErrorType<HTTPValidationError>>(params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -148,10 +149,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetScenesApiV1ScenesGetQueryResult = NonNullable<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>>
-export type GetScenesApiV1ScenesGetQueryError = HTTPValidationError
+export type GetScenesApiV1ScenesGetQueryError = ErrorType<HTTPValidationError>
 
 
-export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = ErrorType<HTTPValidationError>>(
  params: undefined |  GetScenesApiV1ScenesGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>,
@@ -161,7 +162,7 @@ export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof get
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = ErrorType<HTTPValidationError>>(
  params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>,
@@ -171,7 +172,7 @@ export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof get
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = ErrorType<HTTPValidationError>>(
  params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
@@ -179,7 +180,7 @@ export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof get
  * @summary Get Scenes
  */
 
-export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = HTTPValidationError>(
+export function useGetScenesApiV1ScenesGet<TData = Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError = ErrorType<HTTPValidationError>>(
  params?: GetScenesApiV1ScenesGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScenesApiV1ScenesGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -213,7 +214,7 @@ export const createSceneApiV1ScenesPost = (
   
 
 
-export const getCreateSceneApiV1ScenesPostMutationOptions = <TError = HTTPValidationError,
+export const getCreateSceneApiV1ScenesPostMutationOptions = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSceneApiV1ScenesPost>>, TError,{data: BaseSceneWithRevision}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof createSceneApiV1ScenesPost>>, TError,{data: BaseSceneWithRevision}, TContext> => {
 const {mutation: mutationOptions, request: requestOptions} = options ?? {};
@@ -234,12 +235,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
     export type CreateSceneApiV1ScenesPostMutationResult = NonNullable<Awaited<ReturnType<typeof createSceneApiV1ScenesPost>>>
     export type CreateSceneApiV1ScenesPostMutationBody = BaseSceneWithRevision
-    export type CreateSceneApiV1ScenesPostMutationError = HTTPValidationError
+    export type CreateSceneApiV1ScenesPostMutationError = ErrorType<HTTPValidationError>
 
     /**
  * @summary Create Scene
  */
-export const useCreateSceneApiV1ScenesPost = <TError = HTTPValidationError,
+export const useCreateSceneApiV1ScenesPost = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSceneApiV1ScenesPost>>, TError,{data: BaseSceneWithRevision}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof createSceneApiV1ScenesPost>>,
@@ -273,7 +274,7 @@ export const getGetSceneApiV1ScenesSceneIdGetQueryKey = (sceneId: string,) => {
     }
 
     
-export const getGetSceneApiV1ScenesSceneIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = HTTPValidationError>(sceneId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getGetSceneApiV1ScenesSceneIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = ErrorType<HTTPValidationError>>(sceneId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -292,10 +293,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetSceneApiV1ScenesSceneIdGetQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>>
-export type GetSceneApiV1ScenesSceneIdGetQueryError = HTTPValidationError
+export type GetSceneApiV1ScenesSceneIdGetQueryError = ErrorType<HTTPValidationError>
 
 
-export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = ErrorType<HTTPValidationError>>(
  sceneId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>,
@@ -305,7 +306,7 @@ export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<type
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = ErrorType<HTTPValidationError>>(
  sceneId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>,
@@ -315,7 +316,7 @@ export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<type
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = ErrorType<HTTPValidationError>>(
  sceneId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
@@ -323,7 +324,7 @@ export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<type
  * @summary Get Scene
  */
 
-export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneApiV1ScenesSceneIdGet<TData = Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError = ErrorType<HTTPValidationError>>(
  sceneId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -358,7 +359,7 @@ export const updateSceneApiV1ScenesSceneIdPut = (
   
 
 
-export const getUpdateSceneApiV1ScenesSceneIdPutMutationOptions = <TError = HTTPValidationError,
+export const getUpdateSceneApiV1ScenesSceneIdPutMutationOptions = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSceneApiV1ScenesSceneIdPut>>, TError,{sceneId: string;data: BaseSceneWithRevision}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof updateSceneApiV1ScenesSceneIdPut>>, TError,{sceneId: string;data: BaseSceneWithRevision}, TContext> => {
 const {mutation: mutationOptions, request: requestOptions} = options ?? {};
@@ -379,12 +380,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
     export type UpdateSceneApiV1ScenesSceneIdPutMutationResult = NonNullable<Awaited<ReturnType<typeof updateSceneApiV1ScenesSceneIdPut>>>
     export type UpdateSceneApiV1ScenesSceneIdPutMutationBody = BaseSceneWithRevision
-    export type UpdateSceneApiV1ScenesSceneIdPutMutationError = HTTPValidationError
+    export type UpdateSceneApiV1ScenesSceneIdPutMutationError = ErrorType<HTTPValidationError>
 
     /**
  * @summary Update Scene
  */
-export const useUpdateSceneApiV1ScenesSceneIdPut = <TError = HTTPValidationError,
+export const useUpdateSceneApiV1ScenesSceneIdPut = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSceneApiV1ScenesSceneIdPut>>, TError,{sceneId: string;data: BaseSceneWithRevision}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof updateSceneApiV1ScenesSceneIdPut>>,
@@ -413,7 +414,7 @@ export const deleteSceneApiV1ScenesSceneIdDelete = (
   
 
 
-export const getDeleteSceneApiV1ScenesSceneIdDeleteMutationOptions = <TError = HTTPValidationError,
+export const getDeleteSceneApiV1ScenesSceneIdDeleteMutationOptions = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSceneApiV1ScenesSceneIdDelete>>, TError,{sceneId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteSceneApiV1ScenesSceneIdDelete>>, TError,{sceneId: string}, TContext> => {
 const {mutation: mutationOptions, request: requestOptions} = options ?? {};
@@ -434,12 +435,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
     export type DeleteSceneApiV1ScenesSceneIdDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSceneApiV1ScenesSceneIdDelete>>>
     
-    export type DeleteSceneApiV1ScenesSceneIdDeleteMutationError = HTTPValidationError
+    export type DeleteSceneApiV1ScenesSceneIdDeleteMutationError = ErrorType<HTTPValidationError>
 
     /**
  * @summary Delete Scene
  */
-export const useDeleteSceneApiV1ScenesSceneIdDelete = <TError = HTTPValidationError,
+export const useDeleteSceneApiV1ScenesSceneIdDelete = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSceneApiV1ScenesSceneIdDelete>>, TError,{sceneId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof deleteSceneApiV1ScenesSceneIdDelete>>,
@@ -472,7 +473,7 @@ export const addSceneFileApiV1SceneFilesPost = (
   
 
 
-export const getAddSceneFileApiV1SceneFilesPostMutationOptions = <TError = HTTPValidationError,
+export const getAddSceneFileApiV1SceneFilesPostMutationOptions = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addSceneFileApiV1SceneFilesPost>>, TError,{data: SceneFile;params: AddSceneFileApiV1SceneFilesPostParams}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof addSceneFileApiV1SceneFilesPost>>, TError,{data: SceneFile;params: AddSceneFileApiV1SceneFilesPostParams}, TContext> => {
 const {mutation: mutationOptions, request: requestOptions} = options ?? {};
@@ -493,12 +494,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
     export type AddSceneFileApiV1SceneFilesPostMutationResult = NonNullable<Awaited<ReturnType<typeof addSceneFileApiV1SceneFilesPost>>>
     export type AddSceneFileApiV1SceneFilesPostMutationBody = SceneFile
-    export type AddSceneFileApiV1SceneFilesPostMutationError = HTTPValidationError
+    export type AddSceneFileApiV1SceneFilesPostMutationError = ErrorType<HTTPValidationError>
 
     /**
  * @summary Add Scene File
  */
-export const useAddSceneFileApiV1SceneFilesPost = <TError = HTTPValidationError,
+export const useAddSceneFileApiV1SceneFilesPost = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addSceneFileApiV1SceneFilesPost>>, TError,{data: SceneFile;params: AddSceneFileApiV1SceneFilesPostParams}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof addSceneFileApiV1SceneFilesPost>>,
@@ -532,7 +533,7 @@ export const getGetSceneFileApiV1SceneFilesFileIdGetQueryKey = (fileId: string,)
     }
 
     
-export const getGetSceneFileApiV1SceneFilesFileIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = HTTPValidationError>(fileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getGetSceneFileApiV1SceneFilesFileIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = ErrorType<HTTPValidationError>>(fileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -551,10 +552,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetSceneFileApiV1SceneFilesFileIdGetQueryResult = NonNullable<Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>>
-export type GetSceneFileApiV1SceneFilesFileIdGetQueryError = HTTPValidationError
+export type GetSceneFileApiV1SceneFilesFileIdGetQueryError = ErrorType<HTTPValidationError>
 
 
-export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = ErrorType<HTTPValidationError>>(
  fileId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>,
@@ -564,7 +565,7 @@ export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnTy
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = ErrorType<HTTPValidationError>>(
  fileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>,
@@ -574,7 +575,7 @@ export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnTy
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = ErrorType<HTTPValidationError>>(
  fileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
@@ -582,7 +583,7 @@ export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnTy
  * @summary Get Scene File
  */
 
-export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = HTTPValidationError>(
+export function useGetSceneFileApiV1SceneFilesFileIdGet<TData = Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError = ErrorType<HTTPValidationError>>(
  fileId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSceneFileApiV1SceneFilesFileIdGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -619,7 +620,7 @@ export const getProtectedApiV1ProtectedGetQueryKey = () => {
     }
 
     
-export const getProtectedApiV1ProtectedGetQueryOptions = <TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getProtectedApiV1ProtectedGetQueryOptions = <TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -638,10 +639,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type ProtectedApiV1ProtectedGetQueryResult = NonNullable<Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>>
-export type ProtectedApiV1ProtectedGetQueryError = unknown
+export type ProtectedApiV1ProtectedGetQueryError = ErrorType<unknown>
 
 
-export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = unknown>(
+export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = ErrorType<unknown>>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>,
@@ -651,7 +652,7 @@ export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof 
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = unknown>(
+export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>,
@@ -661,7 +662,7 @@ export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof 
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = unknown>(
+export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
@@ -669,7 +670,7 @@ export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof 
  * @summary Protected
  */
 
-export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = unknown>(
+export function useProtectedApiV1ProtectedGet<TData = Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof protectedApiV1ProtectedGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -706,7 +707,7 @@ export const getHelloGetQueryKey = () => {
     }
 
     
-export const getHelloGetQueryOptions = <TData = Awaited<ReturnType<typeof helloGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof helloGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getHelloGetQueryOptions = <TData = Awaited<ReturnType<typeof helloGet>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof helloGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -725,10 +726,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type HelloGetQueryResult = NonNullable<Awaited<ReturnType<typeof helloGet>>>
-export type HelloGetQueryError = unknown
+export type HelloGetQueryError = ErrorType<unknown>
 
 
-export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = unknown>(
+export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = ErrorType<unknown>>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof helloGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof helloGet>>,
@@ -738,7 +739,7 @@ export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = unknown>(
+export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof helloGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof helloGet>>,
@@ -748,7 +749,7 @@ export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError
       >, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
-export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = unknown>(
+export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof helloGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey }
@@ -756,7 +757,7 @@ export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError
  * @summary Hello
  */
 
-export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = unknown>(
+export function useHelloGet<TData = Awaited<ReturnType<typeof helloGet>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof helloGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {

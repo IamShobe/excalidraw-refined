@@ -16,65 +16,65 @@ import type {
   UserRead
 } from '../../model'
 
-export const getUsersCurrentUserUsersMeGetResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
+export const getUsersCurrentUserApiV1UsersMeGetResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
 
-export const getUsersPatchCurrentUserUsersMePatchResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
+export const getUsersPatchCurrentUserApiV1UsersMePatchResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
 
-export const getUsersUserUsersIdGetResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
+export const getUsersUserApiV1UsersIdGetResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
 
-export const getUsersPatchUserUsersIdPatchResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
+export const getUsersPatchUserApiV1UsersIdPatchResponseMock = (overrideResponse: Partial< UserRead > = {}): UserRead => ({email: faker.internet.email(), id: faker.string.uuid(), is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_superuser: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), is_verified: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), ...overrideResponse})
 
 
-export const getUsersCurrentUserUsersMeGetMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserRead> | UserRead)) => {
-  return http.get('*/users/me', async (info) => {await delay(1000);
+export const getUsersCurrentUserApiV1UsersMeGetMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserRead> | UserRead)) => {
+  return http.get('*/api/v1/users/me', async (info) => {await delay(1000);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
             ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getUsersCurrentUserUsersMeGetResponseMock()),
+            : getUsersCurrentUserApiV1UsersMeGetResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   })
 }
 
-export const getUsersPatchCurrentUserUsersMePatchMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<UserRead> | UserRead)) => {
-  return http.patch('*/users/me', async (info) => {await delay(1000);
+export const getUsersPatchCurrentUserApiV1UsersMePatchMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<UserRead> | UserRead)) => {
+  return http.patch('*/api/v1/users/me', async (info) => {await delay(1000);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
             ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getUsersPatchCurrentUserUsersMePatchResponseMock()),
+            : getUsersPatchCurrentUserApiV1UsersMePatchResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   })
 }
 
-export const getUsersUserUsersIdGetMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserRead> | UserRead)) => {
-  return http.get('*/users/:id', async (info) => {await delay(1000);
+export const getUsersUserApiV1UsersIdGetMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserRead> | UserRead)) => {
+  return http.get('*/api/v1/users/:id', async (info) => {await delay(1000);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
             ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getUsersUserUsersIdGetResponseMock()),
+            : getUsersUserApiV1UsersIdGetResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   })
 }
 
-export const getUsersPatchUserUsersIdPatchMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<UserRead> | UserRead)) => {
-  return http.patch('*/users/:id', async (info) => {await delay(1000);
+export const getUsersPatchUserApiV1UsersIdPatchMockHandler = (overrideResponse?: UserRead | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<UserRead> | UserRead)) => {
+  return http.patch('*/api/v1/users/:id', async (info) => {await delay(1000);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
             ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getUsersPatchUserUsersIdPatchResponseMock()),
+            : getUsersPatchUserApiV1UsersIdPatchResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   })
 }
 
-export const getUsersDeleteUserUsersIdDeleteMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
-  return http.delete('*/users/:id', async (info) => {await delay(1000);
+export const getUsersDeleteUserApiV1UsersIdDeleteMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/api/v1/users/:id', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
       { status: 204,
@@ -83,9 +83,9 @@ export const getUsersDeleteUserUsersIdDeleteMockHandler = (overrideResponse?: vo
   })
 }
 export const getUsersMock = () => [
-  getUsersCurrentUserUsersMeGetMockHandler(),
-  getUsersPatchCurrentUserUsersMePatchMockHandler(),
-  getUsersUserUsersIdGetMockHandler(),
-  getUsersPatchUserUsersIdPatchMockHandler(),
-  getUsersDeleteUserUsersIdDeleteMockHandler()
+  getUsersCurrentUserApiV1UsersMeGetMockHandler(),
+  getUsersPatchCurrentUserApiV1UsersMePatchMockHandler(),
+  getUsersUserApiV1UsersIdGetMockHandler(),
+  getUsersPatchUserApiV1UsersIdPatchMockHandler(),
+  getUsersDeleteUserApiV1UsersIdDeleteMockHandler()
 ]

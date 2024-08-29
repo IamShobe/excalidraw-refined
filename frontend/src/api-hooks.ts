@@ -68,7 +68,19 @@ export const useScene = (sceneId?: string) => {
     query: {
       queryKey: getSceneQueryKey(sceneId!),
       enabled: Boolean(sceneId),
-    }
+      retry: (_, error) => {
+        if (!error.response) {
+          return true; // Retry on network errors
+        }
+
+        // check if the error is a 404
+        if (error.status === 404) {
+          return false;
+        }
+
+        return true;
+      },
+    },
   });
 }
 
