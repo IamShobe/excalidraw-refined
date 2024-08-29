@@ -17,6 +17,7 @@ import "./App.css";
 import BrowseScenesModal from "./BrowseScenesModal.tsx";
 import SaveAsSceneModal from "./SaveAsSceneModal.tsx";
 import { toBase64 } from "./utils/strings.ts";
+import Login from "./Login.tsx";
 
 
 const queryClient = new QueryClient();
@@ -437,6 +438,8 @@ const ProvidedApp = () => (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <Routes>
+          <Route path="/login" element={<Login />} />
+
           <Route path="/scenes/:id" element={<App />} />
           <Route path={"*"} element={<App />} />
         </Routes>

@@ -2,7 +2,7 @@ import dataclasses
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends, Query
-from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from fastapi_users.db import SQLAlchemyUserDatabase
 from server.db.models import OAuthAccount, User
 from sqlalchemy.ext.asyncio import AsyncSession
 

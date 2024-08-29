@@ -13,6 +13,7 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.clients.google import GoogleOAuth2
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from .users import UserRead, UserUpdate, UserCreate
 from server.api.dependencies import get_user_db
 from server.db.models import User
 
@@ -51,7 +52,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
 
-async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
+async def get_user_manager(user_db: Annotated[SQLAlchemyUserDatabase, Depends(get_user_db)]):
     yield UserManager(user_db)
 
 
@@ -81,10 +82,42 @@ fastapi_users = FastAPIUsers[User, uuid.UUID](
 
 current_active_user = fastapi_users.current_user(active=True)
 
+user_dependency = Annotated[User, Depends(current_active_user)]
+
 
 router = APIRouter()
 
-user_dependency = Annotated[User, Depends(current_active_user)]
+
+router.include_router(
+    fastapi_users.get_auth_router(cookie_backend), 
+    prefix="/auth/jwt", 
+    tags=["auth"],
+)
+router.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix="/auth",
+    tags=["auth"],
+)
+router.include_router(
+    fastapi_users.get_reset_password_router(),
+    prefix="/auth",
+    tags=["auth"],
+)
+router.include_router(
+    fastapi_users.get_verify_router(UserRead),
+    prefix="/auth",
+    tags=["auth"],
+)
+router.include_router(
+    fastapi_users.get_users_router(UserRead, UserUpdate),
+    prefix="/users",
+    tags=["users"],
+)
+router.include_router(
+    fastapi_users.get_oauth_router(google_oauth_client, cookie_backend, SECRET),
+    prefix="/auth/google",
+    tags=["auth"],
+)
 
 
 @router.get("/protected")
