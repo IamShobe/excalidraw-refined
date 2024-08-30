@@ -28,7 +28,7 @@ const Comp = () => {
 
 export const Login = () => {
     return (
-        <Flex bg="gray.100" align="center" justify="center" h="100vh">
+        <Flex bg="gray.100" align="center" justify="center" flex="1">
             <Box bg="white" p={6} rounded="md" w="md">
                 <Formik
                     initialValues={{
