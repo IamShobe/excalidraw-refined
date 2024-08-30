@@ -9,6 +9,7 @@ npx devcontainer build --workspace-folder .devcontainer/pre-build/ --image-name 
 Login to registry:
 
 ```bash
+gh auth refresh -s write:packages # make sure you have credentials to push
 gh auth token | docker login ghcr.io -u IamShobe --password-stdin
 ```
 
