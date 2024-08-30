@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,

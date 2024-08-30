@@ -11,9 +11,9 @@ import axios from "axios";
 import { BiReset } from "react-icons/bi";
 import { CgBrowse } from "react-icons/cg";
 import { MdOutlineSave, MdOutlineSaveAs } from "react-icons/md";
-import { Await, createBrowserRouter, createRoutesFromElements, createSearchParams, defer, IndexRouteObject, LoaderFunctionArgs, Outlet, redirect, Route, RouterProvider, useAsyncValue, useLoaderData, useLocation, useNavigate, useNavigation, useParams, useRouteLoaderData } from "react-router-dom";
+import { Await, createBrowserRouter, createRoutesFromElements, createSearchParams, defer, IndexRouteObject, LoaderFunctionArgs, Outlet, redirect, Route, RouterProvider, useAsyncValue, useLoaderData, useLocation, useNavigate, useNavigation, useParams, useRouteLoaderData, useSearchParams } from "react-router-dom";
 import { useHash } from "react-use";
-import { useDeleteSceneMutation, useSaveSceneFileToServerMutation, useSaveSceneToServerMutation, useScene, useSceneFiles, useUpdateSceneMutation } from "./api-hooks.ts";
+import { apiManager, ErrorCode, useDeleteSceneMutation, useSaveSceneFileToServerMutation, useSaveSceneToServerMutation, useScene, useSceneFiles, useUpdateSceneMutation } from "./api-hooks.ts";
 import { AXIOS_INSTANCE } from "./api/axios.ts";
 import "./App.css";
 import BrowseScenesModal from "./BrowseScenesModal.tsx";
@@ -23,7 +23,11 @@ import SaveAsSceneModal from "./SaveAsSceneModal.tsx";
 import { toBase64 } from "./utils/strings.ts";
 import { ON_UNAUTHORIZED_REDIRECT_TO, restoreSourceLocation, storeSourceLocation } from "./utils/routeUtils.ts";
 import { getGetSceneApiV1ScenesSceneIdGetQueryOptions, getGetSceneFileApiV1SceneFilesFileIdGetQueryOptions, getSceneApiV1ScenesSceneIdGet, getSceneFileApiV1SceneFilesFileIdGet } from "./gen/api/default/default.ts";
-
+import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
+import { BaseSceneWithRevision } from "./gen/model/baseSceneWithRevision.ts";
+import { SceneFile } from "./gen/model/sceneFile.ts";
+import { db } from "./db/db.ts";
+import * as R from "remeda";
 
 const updateSceneLibraryWithBlobs = (api: ExcalidrawImperativeAPI, blobs: Record<string, Blob>) => {
   for (const [_, blob] of Object.entries(blobs)) {
@@ -132,6 +136,48 @@ const Example = () => {
   </div>
 }
 
+export type SceneDataOptions = {
+  name?: string,
+  description?: string,
+}
+
+const buildSceneData = async (
+  elements: readonly ExcalidrawElement[],
+  appState: AppState,
+  files: BinaryFiles,
+  options: SceneDataOptions = {},
+) => {
+  return {
+    scene: {
+      name: options.name ?? "",
+      description: options.description ?? "",
+      picture: await exportToImageBase64({ elements, appState, files }),
+      data: JSON.stringify({
+        elements,
+      }),
+    },
+    files: Object.entries(files).map(([key, value]) => {
+      return {
+        name: key,
+        data: JSON.stringify(value),
+      };
+    }),
+  } satisfies SceneData;
+}
+
+// debounce saving
+const storeDraftDebouncer = R.debounce(async (
+  id: string,
+  elements: readonly ExcalidrawElement[],
+  state: AppState,
+  files: BinaryFiles,
+  options: SceneDataOptions = {},
+) => {
+  console.log("saving")
+  const newSceneData = await buildSceneData(elements, state, files, options);
+  await saveSceneDataToLocalDB(id, newSceneData);
+}, { waitMs: 1000, timing: "trailing" });
+
 const ExcalidrawApp = () => {
   const sceneData = useAsyncValue() as SceneData;
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
@@ -146,8 +192,8 @@ const ExcalidrawApp = () => {
   const deleteSceneMutation = useDeleteSceneMutation();
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const { id } = useParams();
+  const { id: idParam } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   // const sceneQuery = useScene(id);
   // const fileIds = useMemo(() => sceneQuery.data?.files_ids ?? [], [sceneQuery.data]);
   // const sceneFilesQueries = useSceneFiles(fileIds);
@@ -157,7 +203,8 @@ const ExcalidrawApp = () => {
   //   return search.get("isDraft") === "true";
   // }, [location.search]);
 
-  const [isDraft, setIsDraft] = useState(false);
+  const id = getSceneIdFromIdParam(idParam);
+  const isDraft = searchParams.get('isDraft') === "true";
 
   // useLibraryBlobs(excalidrawAPI);
 
@@ -166,15 +213,28 @@ const ExcalidrawApp = () => {
       return null;
     }
 
-    return JSON.parse(sceneData.scene.data);
-  }, [sceneData.scene]);
+    const result = JSON.parse(sceneData.scene.data) as ImportedDataState;
+    if (sceneData.files.length === 0) {
+      return result;
+    }
+
+    const files: BinaryFiles = {};
+    sceneData.files.forEach((file) => {
+      files[file.name] = JSON.parse(file.data);
+    })
+
+    return {
+      ...result,
+      files,
+    };
+  }, [sceneData]);
 
   const serverLoadedElements = useMemo(() => {
     if (parsedSceneData === null) {
       return [];
     }
 
-    return parsedSceneData.elements.map((element: ExcalidrawElement) => ({
+    return (parsedSceneData.elements ?? []).map((element: ExcalidrawElement) => ({
       ...element,
       version: 0,
     }));
@@ -238,7 +298,7 @@ const ExcalidrawApp = () => {
       throw new Error("Excalidraw API is not set");
     }
 
-    if (id === undefined) {
+    if (id === '__root__') {
       saveSceneDisclosure.onOpen();
       return; // if we don't have an id, we can't update the scene - so we open the save as modal
     }
@@ -247,26 +307,23 @@ const ExcalidrawApp = () => {
     const files = excalidrawAPI.getFiles();
     const appState = excalidrawAPI.getAppState();
 
+    const newSceneData = await buildSceneData(elements, appState, files, {
+      name: sceneData.scene?.name,
+      description: sceneData.scene?.description,
+    });
+
     const updatedScene = await updateSceneMutation.mutateAsync({
       sceneId: id,
-      data: {
-        name: sceneData.scene?.name ?? "",
-        description: sceneData.scene?.description ?? "",
-        picture: await exportToImageBase64({ elements, appState, files }),
-        data: JSON.stringify({ elements, collaborators: [] }),
-      },
+      data: newSceneData.scene
     });
 
     // if this part fails - we lose the files
-    const promises = Object.entries(files).map(([key, value]) => {
+    const promises = newSceneData.files.map((value) => {
       return saveSceneFileToServerMutation.mutateAsync({
         params: {
           revision_id: updatedScene.revision_id,
         },
-        data: {
-          name: key,
-          data: JSON.stringify(value),
-        },
+        data: value
       });
     });
 
@@ -336,6 +393,7 @@ const ExcalidrawApp = () => {
 
   // window.addCollaborators = addCollaborators;
 
+
   const saveToServer = async (sceneName: string, description: string = "") => {
     if (excalidrawAPI === undefined) {
       throw new Error("Excalidraw API is not set");
@@ -382,14 +440,28 @@ const ExcalidrawApp = () => {
 
   window.saveToServer = saveToServer;
 
+  const [lastComparedElements, setComparedElements] = useState<readonly ExcalidrawElement[]>(serverLoadedElements);
+
   return (
     <Flex key={id} flex={"1"}>
       <Excalidraw excalidrawAPI={(api) => setExcalidrawAPI(api)}
         initialData={parsedSceneData}
-        onChange={(elements) => {
-          const changed = isChanged(serverLoadedElements, elements);
-          if (changed && !isDraft) {
-            setIsDraft(true);
+        onChange={async (elements, state, files) => {
+          const changed = isChanged(lastComparedElements, elements);
+          if (changed) {
+            const elementsDeepCopy = JSON.parse(JSON.stringify(elements)) as ExcalidrawElement[];
+            await storeDraftDebouncer.call(id, elements, state, files, {
+              name: sceneData.scene?.name,
+              description: sceneData.scene?.description,
+            });
+            setComparedElements(elementsDeepCopy);
+            if (!isDraft) {
+              // add isDraft=true to the search params
+              setSearchParams((prev) => {
+                prev.set("isDraft", "true");
+                return prev;
+              })
+            }
           }
         }}
       // renderTopRightUI={() => (
@@ -516,14 +588,46 @@ const protectedRouteLoader: IndexRouteObject["loader"] = async ({ request }) => 
   }
 }
 
+
 type SceneData = {
-  scene: Awaited<ReturnType<typeof getSceneApiV1ScenesSceneIdGet>> | null,
-  files: BinaryFileData[],
+  scene: BaseSceneWithRevision | null,
+  files: SceneFile[],
 };
 
+const saveSceneDataToLocalDB = async (id: string, sceneData: SceneData) => {
+  await db.drafts.put({
+    id: id,
+    content: JSON.stringify(sceneData),
+  });
+}
 
-const sceneLoader: IndexRouteObject["loader"] = async ({ params }) => {
+const getSceneIdFromIdParam = (idParam: string = '__root__') => {
+  return idParam;
+}
+
+const loadSceneDataFromLocalDB = async (id: string) => {
+  const result = await db.drafts.get(id);
+  if (result === undefined) {
+    return {
+      scene: null,
+      files: [],
+    } satisfies SceneData;
+  }
+
+  return JSON.parse(result.content) as SceneData;
+}
+
+
+const sceneLoader: IndexRouteObject["loader"] = async ({ params, request }) => {
   const getSceneData = async () => {
+    const search = new URL(request.url).searchParams;
+    const isDraft = search.get("isDraft") === "true";
+    if (isDraft) {
+      // load from local storage
+      const id = getSceneIdFromIdParam(params.id);
+      return loadSceneDataFromLocalDB(id);
+    }
+
     if (!params.id) {
       return {
         scene: null,
@@ -540,9 +644,7 @@ const sceneLoader: IndexRouteObject["loader"] = async ({ params }) => {
 
     return {
       scene,
-      files: files
-        .map(result => JSON.parse(result.data) as BinaryFileData)
-        .filter((sceneFile): sceneFile is BinaryFileData => sceneFile !== undefined),
+      files,
     } satisfies SceneData;
   }
 
@@ -553,6 +655,28 @@ const sceneLoader: IndexRouteObject["loader"] = async ({ params }) => {
 
 const ProtectedRoute = () => {
   const { user } = useLoaderData() as { user: Awaited<ReturnType<typeof usersCurrentUserApiV1UsersMeGet>> };
+  const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useToast();
+
+  useEffect(() => {
+    return apiManager.subscribeErrors((errorData) => {
+      if (errorData.code === ErrorCode.Unauthorized) {
+        toast({
+          title: "Unauthorized",
+          description: "Your session has expired, redirecting to login page...",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          onCloseComplete: () => {
+            storeSourceLocation(location);
+            navigate(ON_UNAUTHORIZED_REDIRECT_TO)
+          }
+        })
+      }
+    });
+  }, []);
+
   return <Outlet context={{ user }} />;
 }
 

@@ -19,6 +19,8 @@
     "@excalidraw/excalidraw": "^0.17.2",
     "@tanstack/react-query": "^5.17.19",
     "axios": "^1.7.5",
+    "dexie": "^4.0.8",
+    "dexie-react-hooks": "^1.1.7",
     "formik": "^2.4.6",
     "framer-motion": "^10.18.0",
     "react": "^18.2.0",
@@ -27,7 +29,8 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-router-dom": "^6.26.1",
     "react-social-login-buttons": "^4.1.0",
-    "react-use": "^17.5.0"
+    "react-use": "^17.5.0",
+    "remeda": "^2.11.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
