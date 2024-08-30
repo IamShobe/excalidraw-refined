@@ -14,5 +14,12 @@ db.version(1).stores({
     drafts: 'id',
 });
 
+async function persist() {
+    return await navigator.storage && navigator.storage.persist &&
+        navigator.storage.persist();
+}
+
+await persist();
+
 export type { Draft };
 export { db };
