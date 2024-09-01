@@ -3,7 +3,7 @@ import { Excalidraw, exportToBlob, MainMenu, restore, WelcomeScreen } from "@exc
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
-import type { AppState, BinaryFileData, BinaryFiles, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import type { AppState, BinaryFileData, BinaryFiles, Collaborator, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 
 import { useDisclosure } from "@chakra-ui/hooks";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
@@ -28,6 +28,7 @@ import { BaseSceneWithRevision } from "./gen/model/baseSceneWithRevision.ts";
 import { SceneFile } from "./gen/model/sceneFile.ts";
 import { db } from "./db/db.ts";
 import * as R from "remeda";
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const updateSceneLibraryWithBlobs = (api: ExcalidrawImperativeAPI, blobs: Record<string, Blob>) => {
   for (const [_, blob] of Object.entries(blobs)) {
@@ -54,6 +55,10 @@ const exportToImageBase64 = async ({ elements, appState, files }: {
 
   return await toBase64(blob);
 };
+
+type EncodedSceneServerData = {
+  elements: readonly ExcalidrawElement[],
+}
 
 const isChanged = (prevElements: readonly ExcalidrawElement[], currentElements: readonly ExcalidrawElement[]) => {
   if (prevElements.length !== currentElements.length) {
@@ -173,7 +178,7 @@ const storeDraftDebouncer = R.debounce(async (
   files: BinaryFiles,
   options: SceneDataOptions = {},
 ) => {
-  console.log("saving")
+  console.log("saving draft")
   const newSceneData = await buildSceneData(elements, state, files, options);
   await saveSceneDataToLocalDB(id, newSceneData);
 }, { waitMs: 1000, timing: "trailing" });
@@ -213,7 +218,8 @@ const ExcalidrawApp = () => {
       return null;
     }
 
-    const result = JSON.parse(sceneData.scene.data) as ImportedDataState;
+    // TODO: use zod here...
+    const result = JSON.parse(sceneData.scene.data) as EncodedSceneServerData;
     if (sceneData.files.length === 0) {
       return result;
     }
@@ -239,7 +245,6 @@ const ExcalidrawApp = () => {
       version: 0,
     }));
   }, [parsedSceneData]);
-
 
   const toast = useToast();
 
@@ -292,7 +297,6 @@ const ExcalidrawApp = () => {
 
   // window.api = excalidrawAPI;
 
-
   const updateScene = async () => {
     if (excalidrawAPI === undefined) {
       throw new Error("Excalidraw API is not set");
@@ -336,6 +340,24 @@ const ExcalidrawApp = () => {
       isClosable: true,
     });
     await queryClient.resetQueries({ queryKey: ["scene", id], exact: true }); // force reload
+    await clearSceneDataFromLocalDB(id)
+    setSearchParams((prev) => {
+      prev.delete("isDraft");
+      return prev;
+    });
+  }
+
+  const restoreSceneToServer = async () => {
+    if (!excalidrawAPI) {
+      throw new Error("Excalidraw API is not set");
+    }
+
+    excalidrawAPI.resetScene(); // delete any local changes
+    if (parsedSceneData === null) {
+      return; // nothing more to do...
+    }
+
+    excalidrawAPI.updateScene(parsedSceneData);
   }
 
   // TODO: implement collaboration
@@ -408,7 +430,7 @@ const ExcalidrawApp = () => {
         name: sceneName,
         description,
         picture: await exportToImageBase64({ elements, appState, files }),
-        data: JSON.stringify({ elements, collaborators: [] }),
+        data: JSON.stringify({ elements } satisfies EncodedSceneServerData),
       }
     });
 
@@ -442,10 +464,24 @@ const ExcalidrawApp = () => {
 
   const [lastComparedElements, setComparedElements] = useState<readonly ExcalidrawElement[]>(serverLoadedElements);
 
+  // TODO: looks like we must fork :\...
+  // useHotkeys(['ctrl+s', 'command+s'], (event) => {
+  //   // event.preventDefault();
+  //   console.log("lol")
+  //   // updateScene();
+  // }, {
+  //   preventDefault: true,
+  // })
+
   return (
     <Flex key={id} flex={"1"}>
       <Excalidraw excalidrawAPI={(api) => setExcalidrawAPI(api)}
         initialData={parsedSceneData}
+        UIOptions={{
+          canvasActions: {
+            saveToActiveFile: false,
+          }
+        }}
         onChange={async (elements, state, files) => {
           const changed = isChanged(lastComparedElements, elements);
           if (changed) {
@@ -478,7 +514,10 @@ const ExcalidrawApp = () => {
           <MainMenu.Item onSelect={browseScenesDisclosure.onOpen} icon={<CgBrowse />}>
             Browse...
           </MainMenu.Item>
-          <MainMenu.Item onSelect={updateScene} icon={<MdOutlineSave />}>
+          <MainMenu.Item
+            onSelect={updateScene}
+            icon={<MdOutlineSave />}
+          >
             Save
           </MainMenu.Item>
           <MainMenu.Item onSelect={saveSceneDisclosure.onOpen} icon={<MdOutlineSaveAs />}>
@@ -520,7 +559,9 @@ const ExcalidrawApp = () => {
           {/*</Flex>*/}
           <Flex position="fixed" bottom="4em" left="1em" zIndex={2} pointerEvents="none" alignItems="center" gap={2}>
             <Text>
-              {sceneData.scene?.name}
+              {sceneData.scene?.name} {
+                isDraft && <Text as="span" color="gray.500">(Draft)</Text>
+              }
             </Text>
           </Flex>
         </>
@@ -541,7 +582,6 @@ const ExcalidrawApp = () => {
 
 function App() {
   const { sceneData } = useLoaderData() as { sceneData: SceneData };
-  console.log("rendered app")
 
   return (
     <Suspense fallback={
@@ -594,6 +634,10 @@ type SceneData = {
   files: SceneFile[],
 };
 
+const clearSceneDataFromLocalDB = async (id: string) => {
+  await db.drafts.delete(id);
+}
+
 const saveSceneDataToLocalDB = async (id: string, sceneData: SceneData) => {
   await db.drafts.put({
     id: id,
@@ -608,10 +652,7 @@ const getSceneIdFromIdParam = (idParam: string = '__root__') => {
 const loadSceneDataFromLocalDB = async (id: string) => {
   const result = await db.drafts.get(id);
   if (result === undefined) {
-    return {
-      scene: null,
-      files: [],
-    } satisfies SceneData;
+    return null;
   }
 
   return JSON.parse(result.content) as SceneData;
@@ -622,14 +663,15 @@ const sceneLoader: IndexRouteObject["loader"] = async ({ params, request }) => {
   const getSceneData = async () => {
     const search = new URL(request.url).searchParams;
     const isDraft = search.get("isDraft") === "true";
+    let existingDraft: SceneData | null = null;
     if (isDraft) {
       // load from local storage
       const id = getSceneIdFromIdParam(params.id);
-      return loadSceneDataFromLocalDB(id);
+      existingDraft = await loadSceneDataFromLocalDB(id);
     }
 
     if (!params.id) {
-      return {
+      return existingDraft ?? {
         scene: null,
         files: [],
       } satisfies SceneData;
@@ -642,7 +684,7 @@ const sceneLoader: IndexRouteObject["loader"] = async ({ params, request }) => {
       return queryClient.fetchQuery(getGetSceneFileApiV1SceneFilesFileIdGetQueryOptions(fileId));
     }));
 
-    return {
+    return existingDraft ?? {
       scene,
       files,
     } satisfies SceneData;

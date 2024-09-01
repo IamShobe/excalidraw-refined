@@ -250,7 +250,7 @@ class SceneController:
             scene=scene,
             data=wanted_scene.data,
             picture=wanted_scene.picture,
-            commiter_id=0,
+            commiter=user,
         )
         scene.name = wanted_scene.name
         scene.description = wanted_scene.description
